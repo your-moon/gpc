@@ -8,16 +8,8 @@ echo "Directory contents:"
 ls -la
 
 echo ""
-echo "cmd directory:"
-ls -la cmd/
-
-echo ""
-echo "cmd/gpc directory:"
-ls -la cmd/gpc/
-
-echo ""
 echo "Building binary..."
-go build -o gpc ./cmd/gpc/
+go build -o gpc .
 
 echo ""
 echo "Verifying binary:"

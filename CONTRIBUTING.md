@@ -62,7 +62,7 @@ go mod download
 make build
 
 # Or manually
-go build -o gpc ./cmd/gpc/
+go build -o gpc .
 ```
 
 ### Running Tests
@@ -103,9 +103,7 @@ make lint
 
 ```
 .
-├── cmd/
-│   └── gpc/              # CLI entry point
-│       └── main.go
+├── main.go               # CLI entry point
 ├── testdata/             # Test files
 │   ├── testdata.go       # Test with errors
 │   └── correct.go        # Test with correct code

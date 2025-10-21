@@ -2,7 +2,7 @@
 
 # Variables
 BINARY_NAME=gpc
-CMD_PATH=./cmd/gpc
+CMD_PATH=.
 COVERAGE_FILE=coverage.out
 
 # Default target

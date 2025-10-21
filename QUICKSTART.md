@@ -5,10 +5,7 @@ Get started with GORM Preload Checker in 5 minutes!
 ## 1. Installation
 
 ```bash
-# Build from source
-git clone https://github.com/your-moon/gpc.git
-cd gpc
-go build -o gpc ./cmd/gpc/
+go install github.com/your-moon/gpc@latest
 ```
 
 ## 2. Run on Your Project
