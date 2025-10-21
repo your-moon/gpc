@@ -154,16 +154,13 @@ vendor/
 **/mocks/**
 ```
 
-### Use with golangci-lint
+### Use with Make
 
-```yaml
-# .golangci.yml
-run:
-  timeout: 10m # Increase timeout for large projects
-
-linters-settings:
-  gpc:
-    enabled: true
+```makefile
+# Makefile
+lint:
+	go vet ./...
+	gpc ./...
 ```
 
 ## 📈 Scaling Strategies
@@ -258,10 +255,10 @@ wait
 
 | Tool          | Type    | Speed             | Coverage     |
 | ------------- | ------- | ----------------- | ------------ |
-| **gpc**       | Static  | Fast (seconds)    | Compile-time |
+| **gpc**       | Static  | Fast (seconds)    | GORM Preload |
 | Unit Tests    | Runtime | Slow (minutes)    | Runtime      |
 | Manual Review | Human   | Very Slow (hours) | Error-prone  |
-| golangci-lint | Static  | Fast (seconds)    | Various      |
+| go vet        | Static  | Fast (seconds)    | General      |
 
 ## 🔮 Future Optimizations
 

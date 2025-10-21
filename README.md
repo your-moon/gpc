@@ -29,11 +29,13 @@ $ gpc ./...
 
 ## 📦 Installation
 
-### As a linter
+### Standalone Tool
 
 ```bash
 go install github.com/your-moon/gpc/cmd/gpc@latest
 ```
+
+**Note**: GPC is a standalone static analysis tool, not integrated with golangci-lint.
 
 ### As a library
 
@@ -71,10 +73,12 @@ Add to your `settings.json`:
 
 ```json
 {
-  "go.lintTool": "golangci-lint",
-  "go.lintFlags": ["--enable=gpc"]
+  "go.lintOnSave": "package",
+  "go.lintTool": "golangci-lint"
 }
 ```
+
+Then run gpc manually or in a terminal.
 
 #### GoLand/IntelliJ
 
@@ -82,18 +86,20 @@ Add to your `settings.json`:
 2. Add new watcher with program: `gpc`
 3. Arguments: `$FilePath$`
 
-### golangci-lint Integration
+### Pre-commit Hook
 
-Add to your `.golangci.yml`:
+Create a pre-commit hook to run gpc automatically:
 
-```yaml
-linters-settings:
-  gpc:
-    enabled: true
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit
 
-linters:
-  enable:
-    - gpc
+echo "Running GPC..."
+gpc ./...
+if [ $? -ne 0 ]; then
+    echo "❌ GPC validation failed!"
+    exit 1
+fi
 ```
 
 ## 📖 Examples

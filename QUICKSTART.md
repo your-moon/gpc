@@ -108,7 +108,7 @@ func GetOrders(db *gorm.DB) {
 
 ```makefile
 lint:
-	golangci-lint run
+	go vet ./...
 	gpc ./...
 ```
 
