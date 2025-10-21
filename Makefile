@@ -53,6 +53,12 @@ coverage-text:
 	@echo "Generating coverage report..."
 	@go test -cover ./...
 
+## bench: Run benchmarks
+bench:
+	@echo "Running benchmarks..."
+	@go test -bench=. -benchmem
+	@echo "✓ Benchmarks complete"
+
 ## lint: Run linters
 lint:
 	@echo "Running linters..."
