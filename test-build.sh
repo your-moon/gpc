@@ -12,27 +12,27 @@ echo "cmd directory:"
 ls -la cmd/
 
 echo ""
-echo "cmd/preloadcheck directory:"
-ls -la cmd/preloadcheck/
+echo "cmd/gpc directory:"
+ls -la cmd/gpc/
 
 echo ""
 echo "Building binary..."
-go build -o preloadcheck ./cmd/preloadcheck/
+go build -o gpc ./cmd/gpc/
 
 echo ""
 echo "Verifying binary:"
-ls -la preloadcheck
-file preloadcheck
+ls -la gpc
+file gpc
 
 echo ""
 echo "Testing binary:"
 echo "Test 1 - Correct file (should pass silently):"
-./preloadcheck ./testdata/correct.go
+./gpc ./testdata/correct.go
 echo "Exit code: $?"
 
 echo ""
 echo "Test 2 - File with errors (should show errors):"
-./preloadcheck ./testdata/testdata.go
+./gpc ./testdata/testdata.go
 echo "Exit code: $?"
 
 echo ""

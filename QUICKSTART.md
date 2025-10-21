@@ -5,20 +5,20 @@ Get started with GORM Preload Checker in 5 minutes!
 ## 1. Installation
 
 ```bash
-go install github.com/your-moon/gpc/cmd/preloadcheck@latest
+go install github.com/your-moon/gpc/cmd/gpc@latest
 ```
 
 ## 2. Run on Your Project
 
 ```bash
 # Check your entire project
-preloadcheck ./...
+gpc ./...
 
 # Check specific package
-preloadcheck ./internal/models/
+gpc ./internal/models/
 
 # Check single file
-preloadcheck ./main.go
+gpc ./main.go
 ```
 
 ## 3. Example Output
@@ -26,14 +26,14 @@ preloadcheck ./main.go
 ### ✅ No Errors (All Good!)
 
 ```bash
-$ preloadcheck ./main.go
+$ gpc ./main.go
 # (no output - everything is correct)
 ```
 
 ### ❌ Errors Found
 
 ```bash
-$ preloadcheck ./main.go
+$ gpc ./main.go
 ./main.go:26:2: invalid preload: User.Profil not found in Order
 ./main.go:31:2: invalid preload: Customer not found in Order
 ```
@@ -109,7 +109,7 @@ func GetOrders(db *gorm.DB) {
 ```makefile
 lint:
 	golangci-lint run
-	preloadcheck ./...
+	gpc ./...
 ```
 
 ### GitHub Actions
@@ -117,8 +117,8 @@ lint:
 ```yaml
 - name: Run GORM Preload Checker
   run: |
-    go install github.com/your-moon/gpc/cmd/preloadcheck@latest
-    preloadcheck ./...
+    go install github.com/your-moon/gpc/cmd/gpc@latest
+    gpc ./...
 ```
 
 ### Pre-commit Hook
@@ -128,7 +128,7 @@ lint:
 # .git/hooks/pre-commit
 
 echo "Running GORM Preload Checker..."
-preloadcheck ./...
+gpc ./...
 if [ $? -ne 0 ]; then
     echo "❌ Preload validation failed!"
     exit 1

@@ -7,7 +7,7 @@
 **Error:**
 
 ```
-stat /home/runner/work/gpc/gpc/cmd/preloadcheck: directory not found
+stat /home/runner/work/gpc/gpc/cmd/gpc: directory not found
 Error: Process completed with exit code 1.
 ```
 
@@ -28,17 +28,17 @@ ls -la
 
 # Check if cmd directory exists
 ls -la cmd/
-ls -la cmd/preloadcheck/
+ls -la cmd/gpc/
 ```
 
 #### 2. Use Correct Build Command
 
 ```bash
 # ❌ Wrong - missing output name
-go build -v ./cmd/preloadcheck/
+go build -v ./cmd/gpc/
 
 # ✅ Correct - specify output name
-go build -o preloadcheck ./cmd/preloadcheck/
+go build -o gpc ./cmd/gpc/
 ```
 
 #### 3. Test Locally First
@@ -56,7 +56,7 @@ make test-build
 ```bash
 # Make sure files are executable
 chmod +x test-build.sh
-chmod +x preloadcheck
+chmod +x gpc
 ```
 
 ### Issue: Binary Not Found After Build
@@ -64,18 +64,18 @@ chmod +x preloadcheck
 **Error:**
 
 ```
-./preloadcheck: No such file or directory
+./gpc: No such file or directory
 ```
 
 **Solution:**
 
 ```bash
 # Build with explicit output name
-go build -o preloadcheck ./cmd/preloadcheck/
+go build -o gpc ./cmd/gpc/
 
 # Verify binary exists
-ls -la preloadcheck
-file preloadcheck
+ls -la gpc
+file gpc
 ```
 
 ### Issue: Go Module Issues
@@ -93,7 +93,7 @@ go: cannot find main module
 ls -la go.mod
 
 # Initialize if missing
-go mod init github.com/your-moon/gorm-preloadcheck
+go mod init github.com/your-moon/gorm-gpc
 
 # Download dependencies
 go mod download
@@ -107,11 +107,11 @@ go mod tidy
 ```yaml
 # ✅ Good - explicit paths
 - name: Build
-  run: go build -o preloadcheck ./cmd/preloadcheck/
+  run: go build -o gpc ./cmd/gpc/
 
 # ❌ Avoid - relative paths can be unclear
 - name: Build
-  run: go build ./cmd/preloadcheck/
+  run: go build ./cmd/gpc/
 ```
 
 ### 2. Add Debug Steps
@@ -131,9 +131,9 @@ go mod tidy
 ```yaml
 - name: Verify build
   run: |
-    ls -la preloadcheck
-    file preloadcheck
-    ./preloadcheck --help || echo "Binary built but no help flag"
+    ls -la gpc
+    file gpc
+    ./gpc --help || echo "Binary built but no help flag"
 ```
 
 ## 🐛 Debugging Commands
@@ -143,8 +143,8 @@ go mod tidy
 ```bash
 # Verify all files exist
 find . -name "*.go" | head -10
-ls -la cmd/preloadcheck/main.go
-cat cmd/preloadcheck/main.go
+ls -la cmd/gpc/main.go
+cat cmd/gpc/main.go
 ```
 
 ### Test Build Process
@@ -152,9 +152,9 @@ cat cmd/preloadcheck/main.go
 ```bash
 # Step-by-step build test
 go mod download
-go build -v ./cmd/preloadcheck/
-go build -o preloadcheck ./cmd/preloadcheck/
-./preloadcheck ./testdata/correct.go
+go build -v ./cmd/gpc/
+go build -o gpc ./cmd/gpc/
+./gpc ./testdata/correct.go
 ```
 
 ### Check Go Environment
@@ -176,27 +176,27 @@ Before pushing to CI/CD:
    ```bash
    make test
    make build
-   ./preloadcheck ./testdata/correct.go
+   ./gpc ./testdata/correct.go
    ```
 
 2. ✅ **Check file structure:**
 
    ```bash
-   ls -la cmd/preloadcheck/main.go
+   ls -la cmd/gpc/main.go
    cat go.mod
    ```
 
 3. ✅ **Verify build:**
 
    ```bash
-   go build -o preloadcheck ./cmd/preloadcheck/
-   ls -la preloadcheck
+   go build -o gpc ./cmd/gpc/
+   ls -la gpc
    ```
 
 4. ✅ **Test binary:**
    ```bash
-   ./preloadcheck ./testdata/correct.go
-   ./preloadcheck ./testdata/testdata.go || true
+   ./gpc ./testdata/correct.go
+   ./gpc ./testdata/testdata.go || true
    ```
 
 ## 🚀 Quick Fixes
@@ -215,8 +215,8 @@ Before pushing to CI/CD:
 
 2. **Use absolute paths:**
    ```bash
-   go build -o /tmp/preloadcheck ./cmd/preloadcheck/
-   /tmp/preloadcheck ./testdata/correct.go
+   go build -o /tmp/gpc ./cmd/gpc/
+   /tmp/gpc ./testdata/correct.go
    ```
 
 ## 📞 Getting Help
@@ -235,20 +235,20 @@ If you're still having issues:
 
 ```bash
 # Check if main.go exists
-ls -la cmd/preloadcheck/main.go
+ls -la cmd/gpc/main.go
 
 # If missing, create it:
-mkdir -p cmd/preloadcheck
-cat > cmd/preloadcheck/main.go << 'EOF'
+mkdir -p cmd/gpc
+cat > cmd/gpc/main.go << 'EOF'
 package main
 
 import (
 	"golang.org/x/tools/go/analysis/singlechecker"
-	preloadcheck "github.com/your-moon/gorm-preloadcheck"
+	gpc "github.com/your-moon/gorm-gpc"
 )
 
 func main() {
-	singlechecker.Main(preloadcheck.Analyzer)
+	singlechecker.Main(gpc.Analyzer)
 }
 EOF
 ```
@@ -260,7 +260,7 @@ EOF
 cat go.mod
 
 # Should be:
-# module github.com/your-moon/gorm-preloadcheck
+# module github.com/your-moon/gorm-gpc
 ```
 
 ### Missing dependencies

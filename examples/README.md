@@ -11,7 +11,7 @@ Basic examples showing correct usage of GORM Preload with simple nested relation
 **Run the linter:**
 
 ```bash
-preloadcheck ./examples/basic.go
+gpc ./examples/basic.go
 ```
 
 Expected: No errors (all preloads are correct)
@@ -23,7 +23,7 @@ Examples of common errors that the linter will catch, including typos and non-ex
 **Run the linter:**
 
 ```bash
-preloadcheck ./examples/errors.go
+gpc ./examples/errors.go
 ```
 
 Expected: Multiple errors detected
@@ -35,7 +35,7 @@ Complex examples with deep nesting, multiple relations, and slice relations.
 **Run the linter:**
 
 ```bash
-preloadcheck ./examples/complex.go
+gpc ./examples/complex.go
 ```
 
 Expected: Errors in the `ComplexErrors` function
@@ -51,13 +51,13 @@ make run-examples
 Or manually:
 
 ```bash
-preloadcheck ./examples/
+gpc ./examples/
 ```
 
 ### Check specific example
 
 ```bash
-preloadcheck ./examples/basic.go
+gpc ./examples/basic.go
 ```
 
 ## Learning Path
@@ -71,7 +71,7 @@ preloadcheck ./examples/basic.go
 Copy these patterns into your own codebase and run the linter:
 
 ```bash
-preloadcheck ./...
+gpc ./...
 ```
 
 This will catch any typos or invalid relation names before they cause runtime errors!

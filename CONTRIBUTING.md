@@ -62,7 +62,7 @@ go mod download
 make build
 
 # Or manually
-go build -o preloadcheck ./cmd/preloadcheck/
+go build -o gpc ./cmd/gpc/
 ```
 
 ### Running Tests
@@ -104,7 +104,7 @@ make lint
 ```
 .
 ├── cmd/
-│   └── preloadcheck/     # CLI entry point
+│   └── gpc/              # CLI entry point
 │       └── main.go
 ├── testdata/             # Test files
 │   ├── testdata.go       # Test with errors

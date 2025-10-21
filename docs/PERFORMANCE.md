@@ -68,7 +68,7 @@ The analyzer is designed to work efficiently with large codebases:
 ### 1. **Incremental Analysis**
 
 - Only analyzes changed packages (when integrated with build tools)
-- Can be run on specific directories: `preloadcheck ./internal/models/`
+- Can be run on specific directories: `gpc ./internal/models/`
 
 ### 2. **Parallel Processing**
 
@@ -93,10 +93,10 @@ Instead of checking everything:
 
 ```bash
 # ❌ Slow for large projects
-preloadcheck ./...
+gpc ./...
 
 # ✅ Faster - check only relevant packages
-preloadcheck ./internal/models/ ./internal/services/
+gpc ./internal/models/ ./internal/services/
 ```
 
 ### 2. Use in CI with Changed Files Only
@@ -110,17 +110,17 @@ preloadcheck ./internal/models/ ./internal/services/
     files: |
       **/*.go
 
-- name: Run preloadcheck on changed files
+- name: Run gpc on changed files
   if: steps.changed-files.outputs.any_changed == 'true'
   run: |
-    preloadcheck ${{ steps.changed-files.outputs.all_changed_files }}
+    gpc ${{ steps.changed-files.outputs.all_changed_files }}
 ```
 
 ### 3. Parallel Execution
 
 ```bash
 # Run on multiple packages in parallel
-find . -type d -name "models" | xargs -P 4 -I {} preloadcheck {}
+find . -type d -name "models" | xargs -P 4 -I {} gpc {}
 ```
 
 ### 4. Cache Results
@@ -131,7 +131,7 @@ find . -type d -name "models" | xargs -P 4 -I {} preloadcheck {}
 lint: .lint-cache
 
 .lint-cache: $(shell find . -name "*.go")
-	preloadcheck ./...
+	gpc ./...
 	touch .lint-cache
 ```
 
@@ -139,12 +139,12 @@ lint: .lint-cache
 
 ```bash
 # Skip vendor, generated code, etc.
-preloadcheck $(go list ./... | grep -v -e vendor -e generated)
+gpc $(go list ./... | grep -v -e vendor -e generated)
 ```
 
 ## 🔧 Configuration for Large Projects
 
-### Create `.preloadcheckignore` (Future Feature)
+### Create `.gpcignore` (Future Feature)
 
 ```
 # Ignore patterns
@@ -162,7 +162,7 @@ run:
   timeout: 10m # Increase timeout for large projects
 
 linters-settings:
-  preloadcheck:
+  gpc:
     enabled: true
 ```
 
@@ -173,7 +173,7 @@ linters-settings:
 1. **Pre-commit Hooks**: Check only staged files
 
    ```bash
-   git diff --cached --name-only --diff-filter=ACM | grep '\.go$' | xargs preloadcheck
+   git diff --cached --name-only --diff-filter=ACM | grep '\.go$' | xargs gpc
    ```
 
 2. **CI Pipeline**: Run in parallel with other linters
@@ -185,7 +185,7 @@ linters-settings:
          matrix:
            package: [models, services, handlers, repositories]
        steps:
-         - run: preloadcheck ./internal/${{ matrix.package }}/
+         - run: gpc ./internal/${{ matrix.package }}/
    ```
 
 3. **Nightly Full Scan**: Complete check of entire codebase
@@ -201,7 +201,7 @@ linters-settings:
 # Check each service independently
 for service in services/*/; do
     echo "Checking $service"
-    preloadcheck "$service" &
+    gpc "$service" &
 done
 wait
 ```
@@ -256,12 +256,12 @@ wait
 
 ## 💡 Performance Comparison
 
-| Tool             | Type    | Speed             | Coverage     |
-| ---------------- | ------- | ----------------- | ------------ |
-| **preloadcheck** | Static  | Fast (seconds)    | Compile-time |
-| Unit Tests       | Runtime | Slow (minutes)    | Runtime      |
-| Manual Review    | Human   | Very Slow (hours) | Error-prone  |
-| golangci-lint    | Static  | Fast (seconds)    | Various      |
+| Tool          | Type    | Speed             | Coverage     |
+| ------------- | ------- | ----------------- | ------------ |
+| **gpc**       | Static  | Fast (seconds)    | Compile-time |
+| Unit Tests    | Runtime | Slow (minutes)    | Runtime      |
+| Manual Review | Human   | Very Slow (hours) | Error-prone  |
+| golangci-lint | Static  | Fast (seconds)    | Various      |
 
 ## 🔮 Future Optimizations
 
@@ -280,13 +280,13 @@ Planned improvements:
 
 ```bash
 # Time the analysis
-time preloadcheck ./...
+time gpc ./...
 
 # With verbose output
-preloadcheck -v ./...
+gpc -v ./...
 
 # Check memory usage
-/usr/bin/time -v preloadcheck ./... 2>&1 | grep "Maximum resident"
+/usr/bin/time -v gpc ./... 2>&1 | grep "Maximum resident"
 ```
 
 ### Expected Times
@@ -297,11 +297,11 @@ preloadcheck -v ./...
 - **1000-5000 files**: 10-60 seconds
 - **5000+ files**: 1-5 minutes
 
-If your project takes significantly longer, please [open an issue](https://github.com/your-moon/gorm-preloadcheck/issues) with details!
+If your project takes significantly longer, please [open an issue](https://github.com/your-moon/gorm-gpc/issues) with details!
 
 ## ✅ Bottom Line
 
-**Yes, preloadcheck handles big projects efficiently!**
+**Yes, gpc handles big projects efficiently!**
 
 - ✅ Linear time complexity
 - ✅ Reasonable memory usage

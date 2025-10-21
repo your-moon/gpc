@@ -1,8 +1,8 @@
 .PHONY: build test lint fmt clean install coverage help
 
 # Variables
-BINARY_NAME=preloadcheck
-CMD_PATH=./cmd/preloadcheck
+BINARY_NAME=gpc
+CMD_PATH=./cmd/gpc
 COVERAGE_FILE=coverage.out
 
 # Default target

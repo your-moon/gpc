@@ -1,4 +1,4 @@
-# GORM Preload Checker
+# GPC - GORM Preload Checker
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/your-moon/gpc)](https://goreportcard.com/report/github.com/your-moon/gpc)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -23,7 +23,7 @@ db.Preload("User.Profil.Address").Find(&orders)  // "Profil" should be "Profile"
 This linter catches these errors during development:
 
 ```bash
-$ preloadcheck ./...
+$ gpc ./...
 ./main.go:26:2: invalid preload: User.Profil not found in Order
 ```
 
@@ -32,7 +32,7 @@ $ preloadcheck ./...
 ### As a linter
 
 ```bash
-go install github.com/your-moon/gpc/cmd/preloadcheck@latest
+go install github.com/your-moon/gpc/cmd/gpc@latest
 ```
 
 ### As a library
@@ -48,19 +48,19 @@ go get github.com/your-moon/gpc
 Check a single file:
 
 ```bash
-preloadcheck ./main.go
+gpc ./main.go
 ```
 
 Check a package:
 
 ```bash
-preloadcheck ./...
+gpc ./...
 ```
 
 Check specific directory:
 
 ```bash
-preloadcheck ./internal/models/
+gpc ./internal/models/
 ```
 
 ### IDE Integration
@@ -72,14 +72,14 @@ Add to your `settings.json`:
 ```json
 {
   "go.lintTool": "golangci-lint",
-  "go.lintFlags": ["--enable=preloadcheck"]
+  "go.lintFlags": ["--enable=gpc"]
 }
 ```
 
 #### GoLand/IntelliJ
 
 1. Go to `Settings` → `Tools` → `File Watchers`
-2. Add new watcher with program: `preloadcheck`
+2. Add new watcher with program: `gpc`
 3. Arguments: `$FilePath$`
 
 ### golangci-lint Integration
@@ -88,12 +88,12 @@ Add to your `.golangci.yml`:
 
 ```yaml
 linters-settings:
-  preloadcheck:
+  gpc:
     enabled: true
 
 linters:
   enable:
-    - preloadcheck
+    - gpc
 ```
 
 ## 📖 Examples

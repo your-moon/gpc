@@ -79,9 +79,9 @@ jobs:
           go-version: "1.24"
 
       - name: Build
-        run: go build -o preloadcheck ./cmd/preloadcheck/
+        run: go build -o gpc ./cmd/gpc/
 
       - name: Test binary
         run: |
-          ./preloadcheck ./testdata/correct.go
-          ./preloadcheck ./testdata/testdata.go || true
+          ./gpc ./testdata/correct.go
+          ./gpc ./testdata/testdata.go || true
