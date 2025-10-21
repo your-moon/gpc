@@ -1,4 +1,4 @@
-module github.com/your-moon/gorm-preloadcheck
+module github.com/your-moon/gpc
 
 go 1.24.4
 

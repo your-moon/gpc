@@ -5,7 +5,7 @@ Get started with GORM Preload Checker in 5 minutes!
 ## 1. Installation
 
 ```bash
-go install github.com/your-moon/gorm-preloadcheck/cmd/preloadcheck@latest
+go install github.com/your-moon/gpc/cmd/preloadcheck@latest
 ```
 
 ## 2. Run on Your Project
@@ -53,10 +53,10 @@ type Order struct {
 
 func GetOrders(db *gorm.DB) {
     var orders []Order
-    
+
     // ✅ Correct
     db.Preload("User").Find(&orders)
-    
+
     // ❌ Typo - will be caught!
     db.Preload("Usr").Find(&orders)
 }
@@ -93,10 +93,10 @@ type Order struct {
 
 func GetOrders(db *gorm.DB) {
     var orders []Order
-    
+
     // ✅ Correct nested preload
     db.Preload("User.Profile.Address").Find(&orders)
-    
+
     // ❌ Typo in nested path - caught!
     db.Preload("User.Profil.Address").Find(&orders)
 }
@@ -117,7 +117,7 @@ lint:
 ```yaml
 - name: Run GORM Preload Checker
   run: |
-    go install github.com/your-moon/gorm-preloadcheck/cmd/preloadcheck@latest
+    go install github.com/your-moon/gpc/cmd/preloadcheck@latest
     preloadcheck ./...
 ```
 
@@ -138,12 +138,14 @@ fi
 ## 6. What Gets Checked?
 
 ✅ **Validated:**
+
 - String literal relation names
 - Nested relations (any depth)
 - Relations with conditions
 - Pointer and slice types
 
 ⚠️ **Not Validated:**
+
 - Variable relation names
 - Dynamic relation names
 - Relations from external packages (currently)
@@ -178,7 +180,7 @@ db.Preload(relation).Find(&orders)
 - 📖 [Full Documentation](README.md)
 - 🔍 [Features & Limitations](docs/FEATURES.md)
 - 💡 [Examples](examples/)
-- 🐛 [Report Issues](https://github.com/your-moon/gorm-preloadcheck/issues)
+- 🐛 [Report Issues](https://github.com/your-moon/gpc/issues)
 
 ## 9. Next Steps
 
@@ -191,4 +193,3 @@ db.Preload(relation).Find(&orders)
 ---
 
 **Happy coding! 🚀**
-

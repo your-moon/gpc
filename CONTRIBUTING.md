@@ -48,8 +48,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 go version
 
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/gorm-preloadcheck.git
-cd gorm-preloadcheck
+git clone https://github.com/YOUR_USERNAME/gpc.git
+cd gpc
 
 # Install dependencies
 go mod download
@@ -195,8 +195,8 @@ test: add test cases for nested relations
 
 ## Getting Help
 
-- 💬 [GitHub Discussions](https://github.com/your-moon/gorm-preloadcheck/discussions)
-- 🐛 [Issue Tracker](https://github.com/your-moon/gorm-preloadcheck/issues)
+- 💬 [GitHub Discussions](https://github.com/your-moon/gpc/discussions)
+- 🐛 [Issue Tracker](https://github.com/your-moon/gpc/issues)
 - 📧 Reach out to maintainers
 
 ## Recognition

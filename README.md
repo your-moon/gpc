@@ -1,6 +1,6 @@
 # GORM Preload Checker
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/your-moon/gorm-preloadcheck)](https://goreportcard.com/report/github.com/your-moon/gorm-preloadcheck)
+[![Go Report Card](https://goreportcard.com/badge/github.com/your-moon/gpc)](https://goreportcard.com/report/github.com/your-moon/gpc)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A static analysis tool for [GORM](https://gorm.io/) that detects typos and invalid relation names in `Preload()` calls at compile time.
@@ -32,13 +32,13 @@ $ preloadcheck ./...
 ### As a linter
 
 ```bash
-go install github.com/your-moon/gorm-preloadcheck/cmd/preloadcheck@latest
+go install github.com/your-moon/gpc/cmd/preloadcheck@latest
 ```
 
 ### As a library
 
 ```bash
-go get github.com/your-moon/gorm-preloadcheck
+go get github.com/your-moon/gpc
 ```
 
 ## 🚀 Usage
@@ -157,8 +157,8 @@ func GetOrders(db *gorm.DB) {
 ### Build from source
 
 ```bash
-git clone https://github.com/your-moon/gorm-preloadcheck.git
-cd gorm-preloadcheck
+git clone https://github.com/your-moon/gpc.git
+cd gpc
 make build
 ```
 
@@ -239,9 +239,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📮 Support
 
-- 🐛 [Report a bug](https://github.com/your-moon/gorm-preloadcheck/issues/new?template=bug_report.md)
-- 💡 [Request a feature](https://github.com/your-moon/gorm-preloadcheck/issues/new?template=feature_request.md)
-- 💬 [Ask a question](https://github.com/your-moon/gorm-preloadcheck/discussions)
+- 🐛 [Report a bug](https://github.com/your-moon/gpc/issues/new?template=bug_report.md)
+- 💡 [Request a feature](https://github.com/your-moon/gpc/issues/new?template=feature_request.md)
+- 💬 [Ask a question](https://github.com/your-moon/gpc/discussions)
 
 ## ⭐ Star History
 
