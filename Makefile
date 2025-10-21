@@ -129,6 +129,12 @@ dev:
 	@go mod download
 	@echo "✓ Development environment ready"
 
+## test-build: Test build process (for CI debugging)
+test-build: clean
+	@echo "Testing build process..."
+	@./test-build.sh
+	@echo "✓ Build test complete"
+
 ## all: Build and test everything
 all: clean fmt vet lint test build
 	@echo "✓ Build and test complete"
