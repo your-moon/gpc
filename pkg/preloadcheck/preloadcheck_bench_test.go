@@ -51,7 +51,7 @@ func test() {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = run(pass)
+		_, _ = runRipgrep(pass)
 	}
 }
 
@@ -85,7 +85,7 @@ type Order struct { User User }`
 		b.Fatal("Order type not found")
 	}
 
-	pass := &analysis.Pass{
+	_ = &analysis.Pass{
 		Fset:      fset,
 		Files:     []*ast.File{f},
 		TypesInfo: info,
@@ -96,7 +96,11 @@ type Order struct { User User }`
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = checkPreloadPath(pass, obj.Type(), path)
+		structInfo := StructInfo{
+			Name:   "Order",
+			Fields: []string{"User"},
+		}
+		_ = validatePreloadPath(structInfo, path)
 	}
 }
 
@@ -138,7 +142,7 @@ type Root struct { L1 L1 }`
 		b.Fatal("Root type not found")
 	}
 
-	pass := &analysis.Pass{
+	_ = &analysis.Pass{
 		Fset:      fset,
 		Files:     []*ast.File{f},
 		TypesInfo: info,
@@ -149,6 +153,10 @@ type Root struct { L1 L1 }`
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = checkPreloadPath(pass, obj.Type(), path)
+		structInfo := StructInfo{
+			Name:   "Order",
+			Fields: []string{"User"},
+		}
+		_ = validatePreloadPath(structInfo, path)
 	}
 }
