@@ -32,10 +32,15 @@ $ gpc ./...
 ### Standalone Tool
 
 ```bash
-go install github.com/your-moon/gpc/cmd/gpc@latest
+# Build from source
+git clone https://github.com/your-moon/gpc.git
+cd gpc
+go build -o gpc ./cmd/gpc/
 ```
 
 **Note**: GPC is a standalone static analysis tool, not integrated with golangci-lint.
+
+> **Current Status**: This project is ready for development and testing. Once published to GitHub, it can be installed via `go install`.
 
 ### As a library
 
