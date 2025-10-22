@@ -71,7 +71,7 @@ func TestWriteStructuredOutput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Test JSON output
 			testFile := "test_output_" + tt.name + ".json"
-			err := WriteStructuredOutput(tt.results, testFile)
+			err := WriteStructuredOutput(tt.results, testFile, false, false)
 			if err != nil {
 				t.Fatalf("Failed to write structured output: %v", err)
 			}
@@ -141,7 +141,7 @@ func TestWriteConsoleOutput(t *testing.T) {
 				}
 			}()
 
-			WriteConsoleOutput(tt.results)
+			WriteConsoleOutput(tt.results, false, false)
 		})
 	}
 }

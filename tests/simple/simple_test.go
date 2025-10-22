@@ -31,7 +31,7 @@ type Invoice struct {
 	Items    []string
 }
 
-func TestMoon() {
+func ExampleMoon() {
 	var db *gorm.DB
 
 	// ✅ Valid preloads
@@ -44,7 +44,7 @@ func TestMoon() {
 }
 
 // Test functions with various GORM preload scenarios
-func TestBasicPreloads() {
+func ExampleBasicPreloads() {
 	var db *gorm.DB
 
 	// ✅ Valid preloads
@@ -59,7 +59,7 @@ func TestBasicPreloads() {
 	db.Preload("User.Profile.Addres").Find(&orders) // typo: Addres instead of Address
 }
 
-func TestNumberedVariables() {
+func ExampleNumberedVariables() {
 	var db *gorm.DB
 
 	// ✅ Test numbered variables (the key fix)
@@ -79,7 +79,7 @@ func TestNumberedVariables() {
 	db.Preload("Driver").Find(&invoices) // Invoice doesn't have Driver
 }
 
-func TestMultiLineCalls() {
+func ExampleMultiLineCalls() {
 	var db *gorm.DB
 
 	// ✅ Multi-line GORM calls
@@ -99,8 +99,9 @@ func TestMultiLineCalls() {
 		Find(&trips)
 }
 
-func TestEdgeCases() {
+func ExampleEdgeCases() {
 	var db *gorm.DB
+	var orders []Order
 
 	// ❌ Empty preloads
 	db.Preload("").Find(&orders)

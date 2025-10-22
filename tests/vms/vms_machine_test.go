@@ -1,11 +1,12 @@
-package main
+package vms
 
 import (
 	"gorm.io/gorm"
 )
 
 // VMS Machine-related models
-type Machine struct {
+// Note: Machine, Location, MachineModel types are defined in vms_auth_test.go
+type MachineDetails struct {
 	ID         int64 `gorm:"primaryKey"`
 	Name       string
 	ScanCode   string
@@ -20,7 +21,7 @@ type Machine struct {
 	Map        Map
 }
 
-type Location struct {
+type MachineLocation struct {
 	ID               int64 `gorm:"primaryKey"`
 	Name             string
 	LocationCategory LocationCategory `gorm:"foreignKey:LocationCategoryID"`
@@ -32,7 +33,7 @@ type LocationCategory struct {
 	Name string
 }
 
-type MachineModel struct {
+type MachineModelDetails struct {
 	ID   int64 `gorm:"primaryKey"`
 	Name string
 }
@@ -58,11 +59,11 @@ type MachineLocationHistory struct {
 }
 
 // Test 1: Machine details with all relations
-func TestMachineDetails() {
+func ExampleMachineDetails() {
 	var db *gorm.DB
 
 	// Real VMS example: Get machine with all relations
-	machine := Machine{}
+	machine := MachineDetails{}
 	if err := db.Where("org_id = ?", 1).
 		Preload("Location").
 		Preload("Staff").
@@ -86,7 +87,7 @@ func TestMachineDetails() {
 }
 
 // Test 2: Machine location history
-func TestMachineLocationHistory() {
+func ExampleMachineLocationHistory() {
 	var db *gorm.DB
 
 	// Real VMS example: Get machine location history
@@ -100,11 +101,11 @@ func TestMachineLocationHistory() {
 }
 
 // Test 3: Location management
-func TestLocationManagement() {
+func ExampleLocationManagement() {
 	var db *gorm.DB
 
 	// Real VMS example: Get locations with category and staff
-	var items []Location
+	var items []MachineLocation
 	if err := db.
 		Preload("LocationCategory").
 		Preload("Staff").

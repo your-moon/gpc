@@ -1,44 +1,11 @@
-package main
+package vms
 
 import (
 	"gorm.io/gorm"
 )
 
 // VMS Complex patterns that actually fail in real codebase
-type Machine struct {
-	ID         int64 `gorm:"primaryKey"`
-	Name       string
-	ScanCode   string
-	Status     string
-	StaffID    int64
-	LocationID int64
-	ModelID    int64
-	Staff      Staff        `gorm:"foreignKey:StaffID"`
-	Location   Location     `gorm:"foreignKey:LocationID"`
-	Model      MachineModel `gorm:"foreignKey:ModelID"`
-}
-
-type Staff struct {
-	ID        int64 `gorm:"primaryKey"`
-	FirstName string
-	LastName  string
-	Code      string
-}
-
-type Location struct {
-	ID   int64 `gorm:"primaryKey"`
-	Name string
-}
-
-type MachineModel struct {
-	ID   int64 `gorm:"primaryKey"`
-	Name string
-}
-
-type Product struct {
-	ID   int64 `gorm:"primaryKey"`
-	Name string
-}
+// Note: Machine, Staff, Location, MachineModel, Product types are defined in vms_auth_test.go
 
 type Slot struct {
 	ID        int64 `gorm:"primaryKey"`
@@ -68,7 +35,7 @@ type TripItem struct {
 }
 
 // Test 1: Very long multi-line method chain (like real VMS machine.go:215)
-func TestComplexMachineQuery() {
+func ExampleComplexMachineQuery() {
 	var db *gorm.DB
 
 	// This is the pattern that fails in real VMS backend
@@ -106,7 +73,7 @@ func TestComplexMachineQuery() {
 }
 
 // Test 2: Product with slots (like real VMS product.go:104)
-func TestProductWithSlots() {
+func ExampleProductWithSlots() {
 	var db *gorm.DB
 
 	// This pattern also fails in real VMS backend
@@ -119,7 +86,7 @@ func TestProductWithSlots() {
 }
 
 // Test 3: Trip with complex nested relations (like real VMS trip.go:563)
-func TestTripWithComplexRelations() {
+func ExampleTripWithComplexRelations() {
 	var db *gorm.DB
 
 	// This pattern fails in real VMS backend
@@ -134,7 +101,7 @@ func TestTripWithComplexRelations() {
 }
 
 // Test 4: Multiple preloads with different scopes
-func TestMultipleScopes() {
+func ExampleMultipleScopes() {
 	var db *gorm.DB
 
 	// First scope
@@ -151,7 +118,7 @@ func TestMultipleScopes() {
 }
 
 // Test 5: Dynamic query building
-func TestDynamicQuery() {
+func ExampleDynamicQuery() {
 	var db *gorm.DB
 
 	// Build query dynamically

@@ -28,7 +28,7 @@ func TestNewService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := NewService(tt.outputFormat, tt.outputFile)
+			svc := NewService(tt.outputFormat, tt.outputFile, false, false)
 
 			if svc.outputFormat != tt.outputFormat {
 				t.Errorf("Expected output format '%s', got '%s'", tt.outputFormat, svc.outputFormat)
@@ -110,7 +110,7 @@ func TestPreloads() {
 			defer cleanup()
 
 			// Test service
-			svc := NewService(tt.outputFormat, tt.outputFile)
+			svc := NewService(tt.outputFormat, tt.outputFile, false, false)
 			err := svc.AnalyzeTarget(filePaths[0])
 			if err != nil {
 				t.Fatalf("Service analysis failed: %v", err)
@@ -163,7 +163,7 @@ func Test2() { var db *gorm.DB; var orders []Order; db.Preload("User").Find(&ord
 			defer cleanup()
 
 			// Test service - analyze the directory containing the test files
-			svc := NewService(tt.outputFormat, tt.outputFile)
+			svc := NewService(tt.outputFormat, tt.outputFile, false, false)
 			err := svc.AnalyzeTarget(filepath.Dir(filePaths[0]))
 			if err != nil {
 				t.Fatalf("Service analysis failed: %v", err)

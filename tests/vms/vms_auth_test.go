@@ -1,4 +1,4 @@
-package main
+package vms
 
 import (
 	"gorm.io/gorm"
@@ -38,7 +38,7 @@ type Permission struct {
 }
 
 // Test 1: Authentication flow - Staff login with Role and Org
-func TestStaffLogin() {
+func ExampleStaffLogin() {
 	var db *gorm.DB
 
 	// Real VMS example: Staff login with preloaded Role and Org
@@ -63,7 +63,7 @@ func TestStaffLogin() {
 }
 
 // Test 2: Role management with Organization
-func TestRoleManagement() {
+func ExampleRoleManagement() {
 	var db *gorm.DB
 
 	// Real VMS example: Get role with organization
@@ -76,7 +76,7 @@ func TestRoleManagement() {
 }
 
 // Test 3: Permission checking
-func TestPermissionCheck() {
+func ExamplePermissionCheck() {
 	var db *gorm.DB
 
 	// Real VMS example: Get permissions with organization

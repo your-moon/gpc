@@ -1,4 +1,4 @@
-package main
+package vms
 
 import (
 	"gorm.io/gorm"
@@ -26,14 +26,16 @@ type InvoiceItem struct {
 	ID        int64 `gorm:"primaryKey"`
 	InvoiceID int64
 	ProductID int64
-	Product   Product `gorm:"foreignKey:ProductID"`
+	Product   InvoiceProduct `gorm:"foreignKey:ProductID"`
 }
 
-type Product struct {
-	ID       int64 `gorm:"primaryKey"`
-	Name     string
-	Category ProductCategory `gorm:"foreignKey:CategoryID"`
-	Locales  []ProductLocale
+// Note: Product type is defined in vms_auth_test.go, but this one has additional fields
+type InvoiceProduct struct {
+	ID         int64 `gorm:"primaryKey"`
+	Name       string
+	CategoryID int64
+	Category   ProductCategory `gorm:"foreignKey:CategoryID"`
+	Locales    []ProductLocale
 }
 
 type ProductCategory struct {
@@ -102,7 +104,7 @@ type Customer struct {
 }
 
 // Test 1: Invoice with all relations
-func TestInvoiceDetails() {
+func ExampleInvoiceDetails() {
 	var db *gorm.DB
 
 	// Real VMS example: Get invoice with all relations
@@ -119,7 +121,7 @@ func TestInvoiceDetails() {
 }
 
 // Test 2: Invoice with product details
-func TestInvoiceWithProducts() {
+func ExampleInvoiceWithProducts() {
 	var db *gorm.DB
 
 	// Real VMS example: Get invoice with product details
@@ -134,7 +136,7 @@ func TestInvoiceWithProducts() {
 }
 
 // Test 3: Order request with complex relations
-func TestOrderRequest() {
+func ExampleOrderRequest() {
 	var db *gorm.DB
 
 	// Real VMS example: Get order request with all relations
@@ -150,7 +152,7 @@ func TestOrderRequest() {
 }
 
 // Test 4: Customer transaction with product details
-func TestCustomerTransaction() {
+func ExampleCustomerTransaction() {
 	var db *gorm.DB
 
 	// Real VMS example: Get customer transaction
