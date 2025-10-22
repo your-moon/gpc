@@ -295,15 +295,16 @@ func FindVariableTypes(filename string) []models.VariableType {
 							if typeName != "" {
 								line := fset.Position(x.Pos()).Line
 								scope := findFunctionScope(node, x.Pos())
-								modelName := extractModelFromType(typeName)
+								packageName, modelName := extractPackageAndModelFromType(typeName)
 
 								variableTypes = append(variableTypes, models.VariableType{
-									VarName:   name.Name,
-									TypeName:  typeName,
-									ModelName: modelName,
-									Scope:     scope,
-									File:      filename,
-									Line:      line,
+									VarName:     name.Name,
+									TypeName:    typeName,
+									PackageName: packageName,
+									ModelName:   modelName,
+									Scope:       scope,
+									File:        filename,
+									Line:        line,
 								})
 							}
 						}
@@ -322,15 +323,16 @@ func FindVariableTypes(filename string) []models.VariableType {
 						if typeName != "" {
 							line := fset.Position(x.Pos()).Line
 							scope := findFunctionScope(node, x.Pos())
-							modelName := extractModelFromType(typeName)
+							packageName, modelName := extractPackageAndModelFromType(typeName)
 
 							variableTypes = append(variableTypes, models.VariableType{
-								VarName:   ident.Name,
-								TypeName:  typeName,
-								ModelName: modelName,
-								Scope:     scope,
-								File:      filename,
-								Line:      line,
+								VarName:     ident.Name,
+								TypeName:    typeName,
+								PackageName: packageName,
+								ModelName:   modelName,
+								Scope:       scope,
+								File:        filename,
+								Line:        line,
 							})
 						}
 					}
@@ -455,21 +457,30 @@ func getTypeString(expr ast.Expr) string {
 }
 
 func extractModelFromType(typeName string) string {
-	// Remove array and pointer prefixes
-	modelName := typeName
-	if strings.HasPrefix(modelName, "[]") {
-		modelName = modelName[2:]
-	}
-	if strings.HasPrefix(modelName, "*") {
-		modelName = modelName[1:]
-	}
-
-	// Extract the last part after the last dot (package.Model -> Model)
-	if lastDot := strings.LastIndex(modelName, "."); lastDot != -1 {
-		modelName = modelName[lastDot+1:]
-	}
-
+	_, modelName := extractPackageAndModelFromType(typeName)
 	return modelName
+}
+
+// extractPackageAndModelFromType extracts both package and model information from a type string
+func extractPackageAndModelFromType(typeName string) (string, string) {
+	// Remove array and pointer prefixes
+	cleanType := typeName
+	if strings.HasPrefix(cleanType, "[]") {
+		cleanType = cleanType[2:]
+	}
+	if strings.HasPrefix(cleanType, "*") {
+		cleanType = cleanType[1:]
+	}
+
+	// Extract package and model information
+	if lastDot := strings.LastIndex(cleanType, "."); lastDot != -1 {
+		packageName := cleanType[:lastDot]
+		modelName := cleanType[lastDot+1:]
+		return packageName, modelName
+	}
+
+	// No package qualifier, return empty package and the type as model
+	return "", cleanType
 }
 
 func findFunctionScope(node *ast.File, pos token.Pos) string {

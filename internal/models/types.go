@@ -38,12 +38,13 @@ type VariableAssignment struct {
 
 // VariableType represents a variable with its actual Go type
 type VariableType struct {
-	VarName   string // The variable name (e.g., "orders", "currentInvoice")
-	TypeName  string // The actual type (e.g., "[]databases.Invoice", "databases.Invoice")
-	ModelName string // The extracted model name (e.g., "Invoice")
-	Scope     string // The function scope
-	File      string // The file path
-	Line      int    // The line number
+	VarName     string // The variable name (e.g., "orders", "currentInvoice")
+	TypeName    string // The actual type (e.g., "[]databases.Invoice", "databases.Invoice")
+	PackageName string // The package name (e.g., "databases")
+	ModelName   string // The extracted model name (e.g., "Invoice")
+	Scope       string // The function scope
+	File        string // The file path
+	Line        int    // The line number
 }
 
 // PreloadResult defines the structure for a single preload analysis result in JSON output

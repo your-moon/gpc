@@ -9,6 +9,7 @@ import (
 	"github.com/your-moon/gpc/internal/models"
 	"github.com/your-moon/gpc/internal/output"
 	"github.com/your-moon/gpc/internal/parser"
+	"github.com/your-moon/gpc/internal/validator"
 )
 
 // Service handles the main analysis workflow
@@ -50,7 +51,7 @@ func (s *Service) AnalyzeTarget(target string) error {
 	}
 
 	// Find all structs in the directory (for validation)
-	_, err = parser.FindAllStructs(structSearchDir)
+	allStructs, err := parser.FindAllStructs(structSearchDir)
 	if err != nil {
 		return err
 	}
@@ -77,6 +78,9 @@ func (s *Service) AnalyzeTarget(target string) error {
 
 	// Analyze the preload calls
 	results := analyzer.AnalyzePreloads(preloadCalls, gormCalls, varAssignments, variableTypes)
+
+	// Validate preload relations against struct definitions
+	results = validator.ValidatePreloadRelations(results, allStructs)
 
 	// Write output based on format
 	if s.outputFormat == "json" {

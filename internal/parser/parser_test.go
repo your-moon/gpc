@@ -207,11 +207,45 @@ func TestVariables() {
 				},
 			},
 			expected: []testutils.ExpectedVariableType{
-				{VarName: "users", TypeName: "[]User", ModelName: "User", Scope: "TestVariables"},
-				{VarName: "order", TypeName: "Order", ModelName: "Order", Scope: "TestVariables"},
-				{VarName: "orders", TypeName: "[]Order", ModelName: "Order", Scope: "TestVariables"},
-				{VarName: "currentUser", TypeName: "User", ModelName: "User", Scope: "TestVariables"},
-				{VarName: "db", TypeName: "*gorm.DB", ModelName: "DB", Scope: "TestVariables"},
+				{VarName: "users", TypeName: "[]User", PackageName: "", ModelName: "User", Scope: "TestVariables"},
+				{VarName: "order", TypeName: "Order", PackageName: "", ModelName: "Order", Scope: "TestVariables"},
+				{VarName: "orders", TypeName: "[]Order", PackageName: "", ModelName: "Order", Scope: "TestVariables"},
+				{VarName: "currentUser", TypeName: "User", PackageName: "", ModelName: "User", Scope: "TestVariables"},
+				{VarName: "db", TypeName: "*gorm.DB", PackageName: "gorm", ModelName: "DB", Scope: "TestVariables"},
+			},
+		},
+		{
+			name: "Package-qualified types",
+			files: []testutils.TestFile{
+				{
+					Name: "package_test.go",
+					Content: `package main
+
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+func TestPackageTypes() {
+	// Package-qualified types
+	var users []databases.User
+	var order databases.Order
+	var invoices []databases.Invoice
+	
+	// Mixed types
+	var localUser User
+	var db *gorm.DB
+}`,
+				},
+			},
+			expected: []testutils.ExpectedVariableType{
+				{VarName: "users", TypeName: "[]databases.User", PackageName: "databases", ModelName: "User", Scope: "TestPackageTypes"},
+				{VarName: "order", TypeName: "databases.Order", PackageName: "databases", ModelName: "Order", Scope: "TestPackageTypes"},
+				{VarName: "invoices", TypeName: "[]databases.Invoice", PackageName: "databases", ModelName: "Invoice", Scope: "TestPackageTypes"},
+				{VarName: "localUser", TypeName: "User", PackageName: "", ModelName: "User", Scope: "TestPackageTypes"},
+				{VarName: "db", TypeName: "*gorm.DB", PackageName: "gorm", ModelName: "DB", Scope: "TestPackageTypes"},
 			},
 		},
 	}

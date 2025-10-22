@@ -27,8 +27,8 @@ func AnalyzePreloads(preloadCalls []models.PreloadCall, gormCalls []models.GormC
 		// Use file + scope + variable name as key to handle variables with same name in different scopes/files
 		key := varType.File + ":" + varType.Scope + ":" + varType.VarName
 		typeMap[key] = varType
-		debug.Verbose("Variable type: %s -> %s (model: %s, scope: %s)",
-			varType.VarName, varType.TypeName, varType.ModelName, varType.Scope)
+		debug.Verbose("Variable type: %s -> %s (package: %s, model: %s, scope: %s)",
+			varType.VarName, varType.TypeName, varType.PackageName, varType.ModelName, varType.Scope)
 	}
 
 	var results []models.PreloadResult
@@ -53,7 +53,12 @@ func AnalyzePreloads(preloadCalls []models.PreloadCall, gormCalls []models.GormC
 			debug.Indent(1, "Looking up type with key: %s", key)
 
 			if varType, exists := typeMap[key]; exists {
-				model = varType.ModelName
+				// Include package information in the model if available
+				if varType.PackageName != "" {
+					model = varType.PackageName + "." + varType.ModelName
+				} else {
+					model = varType.ModelName
+				}
 				status = "correct"
 				debug.Indent(2, "Found type: %s -> model: %s (CORRECT)", varType.TypeName, model)
 			} else {
@@ -152,7 +157,11 @@ func findVariableAndFindCall(preloadCall models.PreloadCall, gormCalls []models.
 			if call.Scope == preloadCall.Scope && call.File == preloadCall.File {
 				if (call.Method == "Find" || call.Method == "First" || call.Method == "FirstOrCreate") &&
 					strings.Contains(call.LineContent, assignedVar) {
-					return assignedVar, fmt.Sprintf("line %d", call.Line)
+					// Extract the actual model variable from the Find call, not the assigned variable
+					modelVar := extractVariableNameFromFindCall(call.LineContent)
+					if modelVar != "" {
+						return modelVar, fmt.Sprintf("line %d", call.Line)
+					}
 				}
 			}
 		}

@@ -1,9 +1,9 @@
 {
   "total_preloads": 12,
-  "correct": 9,
+  "correct": 8,
   "unknown": 3,
-  "errors": 0,
-  "accuracy": 75,
+  "errors": 1,
+  "accuracy": 66.66666666666666,
   "results": [
     {
       "file": "./testdata/vms_complex_test.go",

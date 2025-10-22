@@ -1,9 +1,9 @@
 {
   "total_preloads": 15,
-  "correct": 15,
+  "correct": 14,
   "unknown": 0,
-  "errors": 0,
-  "accuracy": 100,
+  "errors": 1,
+  "accuracy": 93.33333333333333,
   "results": [
     {
       "file": "./testdata/vms_invoice_test.go",

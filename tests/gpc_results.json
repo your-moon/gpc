@@ -1,16 +1,16 @@
 {
   "total_preloads": 23,
-  "correct": 23,
+  "correct": 16,
   "unknown": 0,
-  "errors": 0,
-  "accuracy": 100,
+  "errors": 7,
+  "accuracy": 69.56521739130434,
   "results": [
     {
       "file": "./simple/simple_test.go",
       "line": 40,
       "relation": "User",
-      "model": "Preload",
-      "variable": "orderDB",
+      "model": "Order",
+      "variable": "orders",
       "find_line": 42,
       "status": "correct"
     },
@@ -18,10 +18,10 @@
       "file": "./simple/simple_test.go",
       "line": 41,
       "relation": "User",
-      "model": "Preload",
-      "variable": "userDB",
+      "model": "User",
+      "variable": "user",
       "find_line": 43,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -57,7 +57,7 @@
       "model": "Order",
       "variable": "orders",
       "find_line": 57,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -120,7 +120,7 @@
       "model": "Trip",
       "variable": "trips",
       "find_line": 78,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -129,7 +129,7 @@
       "model": "Invoice",
       "variable": "invoices",
       "find_line": 79,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -174,7 +174,7 @@
       "model": "Order",
       "variable": "orders",
       "find_line": 106,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -183,7 +183,7 @@
       "model": "Order",
       "variable": "orders",
       "find_line": 109,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
@@ -201,7 +201,7 @@
       "model": "Order",
       "variable": "orders",
       "find_line": 111,
-      "status": "correct"
+      "status": "error"
     },
     {
       "file": "./simple/simple_test.go",

@@ -126,6 +126,42 @@ func TestAnalyzePreloads(t *testing.T) {
 				{Relation: "UnknownRelation", Model: "Order", Variable: "orders", Status: "correct", FindLine: 10},
 			},
 		},
+		{
+			name: "Package-qualified models",
+			preloadCalls: []models.PreloadCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Relation:    "User",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"User\").Find(&invoices)",
+				},
+			},
+			gormCalls: []models.GormCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Method:      "Find",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"User\").Find(&invoices)",
+				},
+			},
+			varAssignments: []models.VariableAssignment{},
+			variableTypes: []models.VariableType{
+				{
+					VarName:     "invoices",
+					TypeName:    "[]databases.Invoice",
+					PackageName: "databases",
+					ModelName:   "Invoice",
+					Scope:       "TestFunc",
+					File:        "test.go",
+					Line:        8,
+				},
+			},
+			expected: []testutils.ExpectedAnalysisResult{
+				{Relation: "User", Model: "databases.Invoice", Variable: "invoices", Status: "correct", FindLine: 10},
+			},
+		},
 	}
 
 	for _, tt := range tests {

@@ -6,25 +6,25 @@
   "accuracy": 50,
   "results": [
     {
-      "file": "./testdata/vms_auth_test.go",
+      "file": "tests/vms/vms_auth_test.go",
       "line": 46,
       "relation": "Org",
       "model": "Staff",
       "variable": "user",
       "find_line": 46,
-      "status": "correct"
+      "status": "error"
     },
     {
-      "file": "./testdata/vms_auth_test.go",
+      "file": "tests/vms/vms_auth_test.go",
       "line": 46,
       "relation": "Role",
       "model": "Staff",
       "variable": "user",
       "find_line": 46,
-      "status": "correct"
+      "status": "error"
     },
     {
-      "file": "./testdata/vms_auth_test.go",
+      "file": "tests/vms/vms_auth_test.go",
       "line": 56,
       "relation": "Org",
       "model": "Role",
@@ -33,7 +33,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/vms_auth_test.go",
+      "file": "tests/vms/vms_auth_test.go",
       "line": 71,
       "relation": "Org",
       "model": "Role",

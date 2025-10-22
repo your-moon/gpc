@@ -46,10 +46,11 @@ type ExpectedGormCall struct {
 
 // ExpectedVariableType represents an expected variable type
 type ExpectedVariableType struct {
-	VarName   string
-	TypeName  string
-	ModelName string
-	Scope     string
+	VarName     string
+	TypeName    string
+	PackageName string
+	ModelName   string
+	Scope       string
 }
 
 // ExpectedAnalysisResult represents an expected analysis result
@@ -165,6 +166,9 @@ func AssertVariableTypes(t *testing.T, actual []models.VariableType, expected []
 
 		if actual.TypeName != expected.TypeName {
 			t.Errorf("For %s: expected type %s, got %s", key, expected.TypeName, actual.TypeName)
+		}
+		if actual.PackageName != expected.PackageName {
+			t.Errorf("For %s: expected package %s, got %s", key, expected.PackageName, actual.PackageName)
 		}
 		if actual.ModelName != expected.ModelName {
 			t.Errorf("For %s: expected model %s, got %s", key, expected.ModelName, actual.ModelName)
