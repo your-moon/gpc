@@ -14,15 +14,19 @@ import (
 
 // Service handles the main analysis workflow
 type Service struct {
-	outputFormat string
-	outputFile   string
+	outputFormat   string
+	outputFile     string
+	validationOnly bool
+	errorsOnly     bool
 }
 
 // NewService creates a new service instance
-func NewService(outputFormat, outputFile string) *Service {
+func NewService(outputFormat, outputFile string, validationOnly, errorsOnly bool) *Service {
 	return &Service{
-		outputFormat: outputFormat,
-		outputFile:   outputFile,
+		outputFormat:   outputFormat,
+		outputFile:     outputFile,
+		validationOnly: validationOnly,
+		errorsOnly:     errorsOnly,
 	}
 }
 
@@ -84,13 +88,13 @@ func (s *Service) AnalyzeTarget(target string) error {
 
 	// Write output based on format
 	if s.outputFormat == "json" {
-		err = output.WriteStructuredOutput(results, s.outputFile)
+		err = output.WriteStructuredOutput(results, s.outputFile, s.validationOnly, s.errorsOnly)
 		if err != nil {
 			return err
 		}
 		fmt.Printf("✅ Analysis complete! Results written to %s\n", s.outputFile)
 	} else {
-		output.WriteConsoleOutput(results)
+		output.WriteConsoleOutput(results, s.validationOnly, s.errorsOnly)
 	}
 
 	return nil

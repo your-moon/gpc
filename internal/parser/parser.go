@@ -55,11 +55,26 @@ func FindAllStructs(dir string) (map[string]models.StructInfo, error) {
 	for _, file := range goFiles {
 		fileStructs := ParseStructsFromFile(file)
 		for name, info := range fileStructs {
-			structs[name] = info
+			// Make struct names unique by including package path
+			// This prevents overwriting when multiple structs have the same name
+			uniqueName := getUniqueStructName(name, file)
+			structs[uniqueName] = info
 		}
 	}
 
 	return structs, nil
+}
+
+// getUniqueStructName creates a unique name for a struct by including the package path
+func getUniqueStructName(structName, filePath string) string {
+	// Extract package name from file path
+	// e.g., "/path/to/databases/payment.go" -> "databases"
+	// e.g., "/path/to/services/superapp/struct.go" -> "superapp"
+	dir := filepath.Dir(filePath)
+	packageName := filepath.Base(dir)
+
+	// Create unique name: package.struct
+	return packageName + "." + structName
 }
 
 // ParseStructsFromFile parses struct definitions from a single file
@@ -83,6 +98,7 @@ func ParseStructsFromFile(filename string) map[string]models.StructInfo {
 						fieldName := field.Names[0].Name
 						fieldType := getFieldType(field.Type)
 						fields[fieldName] = fieldType
+
 					}
 				}
 
@@ -376,6 +392,18 @@ func extractRelation(call *ast.CallExpr) string {
 		if lit, ok := call.Args[0].(*ast.BasicLit); ok {
 			return strings.Trim(lit.Value, "\"")
 		}
+		// Handle clause.Associations - this is a special GORM constant
+		if ident, ok := call.Args[0].(*ast.Ident); ok {
+			if ident.Name == "Associations" {
+				return "clause.Associations" // Special marker for GORM's clause.Associations
+			}
+		}
+		// Handle clause.Associations when it's a selector expression
+		if sel, ok := call.Args[0].(*ast.SelectorExpr); ok {
+			if sel.Sel.Name == "Associations" {
+				return "clause.Associations" // Special marker for GORM's clause.Associations
+			}
+		}
 	}
 	return ""
 }
@@ -464,13 +492,8 @@ func extractModelFromType(typeName string) string {
 // extractPackageAndModelFromType extracts both package and model information from a type string
 func extractPackageAndModelFromType(typeName string) (string, string) {
 	// Remove array and pointer prefixes
-	cleanType := typeName
-	if strings.HasPrefix(cleanType, "[]") {
-		cleanType = cleanType[2:]
-	}
-	if strings.HasPrefix(cleanType, "*") {
-		cleanType = cleanType[1:]
-	}
+	cleanType := strings.TrimPrefix(typeName, "[]")
+	cleanType = strings.TrimPrefix(cleanType, "*")
 
 	// Extract package and model information
 	if lastDot := strings.LastIndex(cleanType, "."); lastDot != -1 {

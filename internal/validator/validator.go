@@ -30,21 +30,40 @@ func ValidatePreloadRelations(results []models.PreloadResult, allStructs map[str
 		baseModel := extractBaseModelName(result.Model)
 		debug.Indent(1, "Base model: %s", baseModel)
 
-		// Check if the model struct exists
-		if structInfo, exists := structMap[baseModel]; exists {
-			debug.Indent(1, "Model struct found: %s", baseModel)
+		// Try to find the struct with package prefix first
+		// e.g., "databases.Invoice" -> look for "databases.Invoice" in structMap
+		fullModelName := result.Model
 
-			// Check if the relation field exists in the struct
-			if validateRelationInStruct(result.Relation, structInfo) {
-				debug.Indent(2, "✅ Relation '%s' found in struct %s", result.Relation, baseModel)
-				results[i].Status = "correct"
-			} else {
-				debug.Indent(2, "❌ Relation '%s' NOT found in struct %s", result.Relation, baseModel)
-				results[i].Status = "error"
-			}
+		// Check if the model struct exists
+		// First try with full package name (e.g., "databases.Invoice")
+		var structInfo models.StructInfo
+		var exists bool
+
+		if structInfo, exists = structMap[fullModelName]; exists {
+			debug.Indent(1, "Model struct found: %s (with package)", fullModelName)
+		} else if structInfo, exists = structMap[baseModel]; exists {
+			debug.Indent(1, "Model struct found: %s (base name)", baseModel)
 		} else {
 			debug.Indent(1, "❌ Model struct '%s' not found", baseModel)
 			results[i].Status = "unknown"
+			continue
+		}
+
+		if exists {
+			// Special handling for clause.Associations - this is always valid in GORM
+			if result.Relation == "clause.Associations" {
+				debug.Indent(2, "✅ clause.Associations is a special GORM constant - always valid")
+				results[i].Status = "correct"
+			} else {
+				// Check if the relation field exists in the struct
+				if validateRelationInStruct(result.Relation, structInfo) {
+					debug.Indent(2, "✅ Relation '%s' found in struct %s", result.Relation, baseModel)
+					results[i].Status = "correct"
+				} else {
+					debug.Indent(2, "❌ Relation '%s' NOT found in struct %s", result.Relation, baseModel)
+					results[i].Status = "error"
+				}
+			}
 		}
 	}
 

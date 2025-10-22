@@ -10,10 +10,12 @@ import (
 )
 
 var (
-	outputFormat string
-	outputFile   string
-	debugMode    bool
-	verboseMode  bool
+	outputFormat   string
+	outputFile     string
+	debugMode      bool
+	verboseMode    bool
+	validationOnly bool
+	errorsOnly     bool
 )
 
 var rootCmd = &cobra.Command{
@@ -37,6 +39,8 @@ func init() {
 	rootCmd.Flags().StringVarP(&outputFile, "file", "f", "gpc_results.json", "Output file for json format")
 	rootCmd.Flags().BoolVarP(&debugMode, "debug", "d", false, "Enable debug output")
 	rootCmd.Flags().BoolVarP(&verboseMode, "verbose", "v", false, "Enable verbose output")
+	rootCmd.Flags().BoolVarP(&validationOnly, "validation-only", "V", false, "Show only validation results (errors and correct relations)")
+	rootCmd.Flags().BoolVarP(&errorsOnly, "errors-only", "e", false, "Show only error results")
 }
 
 func main() {
@@ -54,7 +58,7 @@ func runChecker(cmd *cobra.Command, args []string) {
 	debug.SetVerboseMode(verboseMode)
 
 	// Create service instance
-	svc := service.NewService(outputFormat, outputFile)
+	svc := service.NewService(outputFormat, outputFile, validationOnly, errorsOnly)
 
 	// Run analysis
 	if err := svc.AnalyzeTarget(target); err != nil {

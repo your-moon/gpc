@@ -9,14 +9,34 @@ import (
 )
 
 // WriteStructuredOutput writes analysis results to a JSON file
-func WriteStructuredOutput(results []models.PreloadResult, outputFile string) error {
+func WriteStructuredOutput(results []models.PreloadResult, outputFile string, validationOnly, errorsOnly bool) error {
+	// Filter results based on mode
+	filteredResults := results
+	if errorsOnly {
+		// Show only errors
+		filteredResults = []models.PreloadResult{}
+		for _, result := range results {
+			if result.Status == "error" {
+				filteredResults = append(filteredResults, result)
+			}
+		}
+	} else if validationOnly {
+		// Show validation results (correct and error)
+		filteredResults = []models.PreloadResult{}
+		for _, result := range results {
+			if result.Status == "correct" || result.Status == "error" {
+				filteredResults = append(filteredResults, result)
+			}
+		}
+	}
+
 	// Calculate statistics
-	total := len(results)
+	total := len(filteredResults)
 	correct := 0
 	unknown := 0
 	errors := 0
 
-	for _, result := range results {
+	for _, result := range filteredResults {
 		switch result.Status {
 		case "correct":
 			correct++
@@ -40,7 +60,7 @@ func WriteStructuredOutput(results []models.PreloadResult, outputFile string) er
 		Unknown:       unknown,
 		Errors:        errors,
 		Accuracy:      accuracy,
-		Results:       results,
+		Results:       filteredResults,
 	}
 
 	// Write to JSON file
@@ -58,14 +78,34 @@ func WriteStructuredOutput(results []models.PreloadResult, outputFile string) er
 }
 
 // WriteConsoleOutput writes analysis results to console
-func WriteConsoleOutput(results []models.PreloadResult) {
+func WriteConsoleOutput(results []models.PreloadResult, validationOnly, errorsOnly bool) {
+	// Filter results based on mode
+	filteredResults := results
+	if errorsOnly {
+		// Show only errors
+		filteredResults = []models.PreloadResult{}
+		for _, result := range results {
+			if result.Status == "error" {
+				filteredResults = append(filteredResults, result)
+			}
+		}
+	} else if validationOnly {
+		// Show validation results (correct and error)
+		filteredResults = []models.PreloadResult{}
+		for _, result := range results {
+			if result.Status == "correct" || result.Status == "error" {
+				filteredResults = append(filteredResults, result)
+			}
+		}
+	}
+
 	// Calculate statistics
-	total := len(results)
+	total := len(filteredResults)
 	correct := 0
 	unknown := 0
 	errors := 0
 
-	for _, result := range results {
+	for _, result := range filteredResults {
 		switch result.Status {
 		case "correct":
 			correct++
@@ -86,7 +126,7 @@ func WriteConsoleOutput(results []models.PreloadResult) {
 	fmt.Println("=================================")
 
 	// Print each result
-	for _, result := range results {
+	for _, result := range filteredResults {
 		status := getStatusEmoji(result.Status)
 		fmt.Printf("%s %s:%d %s -> %s", status, result.File, result.Line, result.Relation, result.Model)
 
