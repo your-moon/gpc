@@ -6,7 +6,7 @@
   "accuracy": 69.56521739130434,
   "results": [
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 40,
       "relation": "User",
       "model": "Order",
@@ -15,7 +15,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 41,
       "relation": "User",
       "model": "User",
@@ -24,7 +24,7 @@
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 52,
       "relation": "User",
       "model": "Order",
@@ -33,7 +33,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 53,
       "relation": "User.Profile",
       "model": "Order",
@@ -42,7 +42,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 54,
       "relation": "User.Profile.Address",
       "model": "Order",
@@ -51,7 +51,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 57,
       "relation": "Usr",
       "model": "Order",
@@ -60,7 +60,7 @@
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 58,
       "relation": "User.Profil",
       "model": "Order",
@@ -69,7 +69,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 59,
       "relation": "User.Profile.Addres",
       "model": "Order",
@@ -78,7 +78,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 72,
       "relation": "Driver",
       "model": "Trip",
@@ -87,7 +87,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 73,
       "relation": "Driver",
       "model": "Trip",
@@ -96,7 +96,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 74,
       "relation": "Customer",
       "model": "Invoice",
@@ -105,7 +105,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 75,
       "relation": "Customer",
       "model": "Invoice",
@@ -114,7 +114,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 78,
       "relation": "Customer",
       "model": "Trip",
@@ -123,7 +123,7 @@
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 79,
       "relation": "Driver",
       "model": "Invoice",
@@ -132,7 +132,7 @@
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 87,
       "relation": "User.Profile",
       "model": "Order",
@@ -141,7 +141,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 87,
       "relation": "User",
       "model": "Order",
@@ -150,7 +150,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 95,
       "relation": "Items",
       "model": "Trip",
@@ -159,7 +159,7 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
+      "file": "simple/simple_test.go",
       "line": 95,
       "relation": "Driver",
       "model": "Trip",
@@ -168,48 +168,48 @@
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
-      "line": 106,
+      "file": "simple/simple_test.go",
+      "line": 107,
       "relation": "",
       "model": "Order",
       "variable": "orders",
-      "find_line": 106,
+      "find_line": 107,
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
-      "line": 109,
+      "file": "simple/simple_test.go",
+      "line": 110,
       "relation": "...",
       "model": "Order",
       "variable": "orders",
-      "find_line": 109,
+      "find_line": 110,
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
-      "line": 110,
+      "file": "simple/simple_test.go",
+      "line": 111,
       "relation": "User..Profile",
       "model": "Order",
       "variable": "orders",
-      "find_line": 110,
+      "find_line": 111,
       "status": "correct"
     },
     {
-      "file": "./testdata/simple_test.go",
-      "line": 111,
+      "file": "simple/simple_test.go",
+      "line": 112,
       "relation": ".User",
       "model": "Order",
       "variable": "orders",
-      "find_line": 111,
+      "find_line": 112,
       "status": "error"
     },
     {
-      "file": "./testdata/simple_test.go",
-      "line": 112,
+      "file": "simple/simple_test.go",
+      "line": 113,
       "relation": "User.",
       "model": "Order",
       "variable": "orders",
-      "find_line": 112,
+      "find_line": 113,
       "status": "correct"
     }
   ]

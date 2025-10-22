@@ -1,4 +1,4 @@
-package vms
+package vms_complex_test
 
 import (
 	"gorm.io/gorm"

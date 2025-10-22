@@ -1,4 +1,4 @@
-package vms
+package vms_auth_test
 
 import (
 	"gorm.io/gorm"

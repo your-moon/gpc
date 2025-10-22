@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/your-moon/gpc/internal/analyzer"
+	"github.com/your-moon/gpc/internal/debug"
 	"github.com/your-moon/gpc/internal/models"
 	"github.com/your-moon/gpc/internal/output"
 	"github.com/your-moon/gpc/internal/parser"
@@ -55,10 +56,13 @@ func (s *Service) AnalyzeTarget(target string) error {
 	}
 
 	// Find all structs in the directory (for validation)
+	debug.Info("Searching for structs in directory: %s", structSearchDir)
 	allStructs, err := parser.FindAllStructs(structSearchDir)
 	if err != nil {
+		debug.Error("Failed to find structs: %v", err)
 		return err
 	}
+	debug.Info("Found %d structs", len(allStructs))
 
 	// Find preload calls in specified files
 	var preloadCalls []models.PreloadCall

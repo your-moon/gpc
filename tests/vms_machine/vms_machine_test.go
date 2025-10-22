@@ -1,11 +1,32 @@
-package vms
+package vms_machine_test
 
 import (
 	"gorm.io/gorm"
 )
 
 // VMS Machine-related models
-// Note: Machine, Location, MachineModel types are defined in vms_auth_test.go
+type Staff struct {
+	ID        int64 `gorm:"primaryKey"`
+	FirstName string
+	LastName  string
+	Code      string
+}
+
+type Location struct {
+	ID   int64 `gorm:"primaryKey"`
+	Name string
+}
+
+type MachineModel struct {
+	ID   int64 `gorm:"primaryKey"`
+	Name string
+}
+
+type Organization struct {
+	ID       int64 `gorm:"primaryKey"`
+	Name     string
+	IsActive bool
+}
 type MachineDetails struct {
 	ID         int64 `gorm:"primaryKey"`
 	Name       string

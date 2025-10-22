@@ -169,47 +169,47 @@
     },
     {
       "file": "./simple/simple_test.go",
-      "line": 106,
+      "line": 107,
       "relation": "",
       "model": "Order",
       "variable": "orders",
-      "find_line": 106,
-      "status": "error"
-    },
-    {
-      "file": "./simple/simple_test.go",
-      "line": 109,
-      "relation": "...",
-      "model": "Order",
-      "variable": "orders",
-      "find_line": 109,
+      "find_line": 107,
       "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
       "line": 110,
-      "relation": "User..Profile",
+      "relation": "...",
       "model": "Order",
       "variable": "orders",
       "find_line": 110,
-      "status": "correct"
-    },
-    {
-      "file": "./simple/simple_test.go",
-      "line": 111,
-      "relation": ".User",
-      "model": "Order",
-      "variable": "orders",
-      "find_line": 111,
       "status": "error"
     },
     {
       "file": "./simple/simple_test.go",
+      "line": 111,
+      "relation": "User..Profile",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 111,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
       "line": 112,
-      "relation": "User.",
+      "relation": ".User",
       "model": "Order",
       "variable": "orders",
       "find_line": 112,
+      "status": "error"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 113,
+      "relation": "User.",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 113,
       "status": "correct"
     }
   ]

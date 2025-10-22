@@ -1,0 +1,45 @@
+{
+  "total_preloads": 4,
+  "correct": 0,
+  "unknown": 4,
+  "errors": 0,
+  "accuracy": 0,
+  "results": [
+    {
+      "file": "examples/errors.go",
+      "line": 27,
+      "relation": "Departmen",
+      "model": "Employee",
+      "variable": "employees",
+      "find_line": 27,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/errors.go",
+      "line": 31,
+      "relation": "Department.Compan",
+      "model": "Employee",
+      "variable": "employees",
+      "find_line": 31,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/errors.go",
+      "line": 35,
+      "relation": "Manager",
+      "model": "Employee",
+      "variable": "employees",
+      "find_line": 35,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/errors.go",
+      "line": 39,
+      "relation": "Company",
+      "model": "Employee",
+      "variable": "employees",
+      "find_line": 39,
+      "status": "unknown"
+    }
+  ]
+}

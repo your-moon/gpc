@@ -93,16 +93,16 @@ fi
 echo -e "\n${BLUE}🔍 Running VMS Real-world Tests${NC}"
 
 # Test 1: Authentication flow
-run_test "VMS Authentication Flow" "./vms/vms_auth_test.go" "./expected/vms_auth_expected.json"
+run_test "VMS Authentication Flow" "./vms_auth/vms_auth_test.go" "./expected/vms_auth_expected.json"
 
 # Test 2: Machine management
-run_test "VMS Machine Management" "./vms/vms_machine_test.go" "./expected/vms_machine_expected.json"
+run_test "VMS Machine Management" "./vms_machine/vms_machine_test.go" "./expected/vms_machine_expected.json"
 
 # Test 3: Invoice and payments
-run_test "VMS Invoice & Payments" "./vms/vms_invoice_test.go" "./expected/vms_invoice_expected.json"
+run_test "VMS Invoice & Payments" "./vms_invoice/vms_invoice_test.go" "./expected/vms_invoice_expected.json"
 
 # Test 4: Complex patterns (realistic failures)
-run_test "VMS Complex Patterns" "./vms/vms_complex_test.go" "./expected/vms_complex_expected.json"
+run_test "VMS Complex Patterns" "./vms_complex/vms_complex_test.go" "./expected/vms_complex_expected.json"
 
 # Test 5: Simple test (baseline)
 run_test "Simple Test (Baseline)" "./simple/simple_test.go" "./expected/expected_results.json"

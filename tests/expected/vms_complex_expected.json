@@ -1,114 +1,111 @@
 {
   "total_preloads": 12,
-  "correct": 8,
-  "unknown": 3,
-  "errors": 1,
-  "accuracy": 66.66666666666666,
+  "correct": 3,
+  "unknown": 9,
+  "errors": 0,
+  "accuracy": 25,
   "results": [
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 76,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 43,
       "relation": "Model",
       "model": "Unknown",
-      "find_line": 76,
       "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 76,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 43,
       "relation": "Location",
       "model": "Unknown",
-      "find_line": 76,
       "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 76,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 43,
       "relation": "Staff",
       "model": "Unknown",
-      "find_line": 76,
       "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 114,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 81,
       "relation": "Slots",
       "model": "Product",
       "variable": "product",
-      "find_line": 114,
-      "status": "correct"
+      "find_line": 81,
+      "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 127,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 94,
       "relation": "Items.Product",
       "model": "Trip",
       "variable": "trip",
-      "find_line": 127,
+      "find_line": 94,
       "status": "correct"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 127,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 94,
       "relation": "Machine",
       "model": "Trip",
       "variable": "trip",
-      "find_line": 127,
+      "find_line": 94,
       "status": "correct"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 127,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 94,
       "relation": "Driver",
       "model": "Trip",
       "variable": "trip",
-      "find_line": 127,
+      "find_line": 94,
       "status": "correct"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 142,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 109,
       "relation": "Staff",
       "model": "Machine",
       "variable": "machines1",
-      "find_line": 142,
-      "status": "correct"
+      "find_line": 109,
+      "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 146,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 113,
       "relation": "Location",
       "model": "Machine",
       "variable": "machines2",
-      "find_line": 146,
-      "status": "correct"
+      "find_line": 113,
+      "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 150,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 117,
       "relation": "Model",
       "model": "Machine",
       "variable": "machines3",
-      "find_line": 150,
-      "status": "correct"
+      "find_line": 117,
+      "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 165,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 132,
       "relation": "Staff",
       "model": "Machine",
       "variable": "machines",
-      "find_line": 170,
-      "status": "correct"
+      "find_line": 137,
+      "status": "unknown"
     },
     {
-      "file": "./testdata/vms_complex_test.go",
-      "line": 166,
+      "file": "vms_complex/vms_complex_test.go",
+      "line": 133,
       "relation": "Location",
       "model": "Machine",
       "variable": "machines",
-      "find_line": 170,
-      "status": "correct"
+      "find_line": 137,
+      "status": "unknown"
     }
   ]
 }

@@ -45,28 +45,46 @@ func FindGoFiles(dir string) ([]string, error) {
 
 // FindAllStructs finds all struct definitions in a directory
 func FindAllStructs(dir string) (map[string]models.StructInfo, error) {
+	debug.PassHeader("STRUCT DISCOVERY")
+	debug.Info("Scanning directory for structs: %s", dir)
+
 	structs := make(map[string]models.StructInfo)
 
 	goFiles, err := FindGoFiles(dir)
 	if err != nil {
+		debug.PassFooter("STRUCT DISCOVERY", 0)
 		return nil, err
 	}
 
 	for _, file := range goFiles {
 		fileStructs := ParseStructsFromFile(file)
+		debug.Verbose("Found %d structs in file: %s", len(fileStructs), file)
 		for name, info := range fileStructs {
 			// Make struct names unique by including package path
 			// This prevents overwriting when multiple structs have the same name
 			uniqueName := getUniqueStructName(name, file)
 			structs[uniqueName] = info
+			debug.Verbose("Struct: %s -> %s (fields: %d)", name, uniqueName, len(info.Fields))
 		}
 	}
+
+	debug.PassFooter("STRUCT DISCOVERY", len(structs))
+	debug.Stats("Struct Discovery", map[string]interface{}{
+		"Directory":     dir,
+		"Structs Found": len(structs),
+		"Error":         false,
+	})
 
 	return structs, nil
 }
 
 // getUniqueStructName creates a unique name for a struct by including the package path
 func getUniqueStructName(structName, filePath string) string {
+	// For test files, don't add package prefix to avoid conflicts
+	if strings.Contains(filePath, "/tests/") || strings.HasSuffix(filePath, "_test.go") {
+		return structName
+	}
+
 	// Extract package name from file path
 	// e.g., "/path/to/databases/payment.go" -> "databases"
 	// e.g., "/path/to/services/superapp/struct.go" -> "superapp"

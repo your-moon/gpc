@@ -1,0 +1,79 @@
+{
+  "total_preloads": 8,
+  "correct": 0,
+  "unknown": 8,
+  "errors": 0,
+  "accuracy": 0,
+  "results": [
+    {
+      "file": "examples/with_conditions.go",
+      "line": 28,
+      "relation": "Posts",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 28,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 31,
+      "relation": "Posts",
+      "model": "Unknown",
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 36,
+      "relation": "Posts",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 36,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 39,
+      "relation": "Comments.Post",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 39,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 43,
+      "relation": "Post",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 43,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 47,
+      "relation": "Comments.Pos",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 47,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 56,
+      "relation": "",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 56,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/with_conditions.go",
+      "line": 61,
+      "relation": "",
+      "model": "Author",
+      "variable": "authors",
+      "find_line": 61,
+      "status": "unknown"
+    }
+  ]
+}

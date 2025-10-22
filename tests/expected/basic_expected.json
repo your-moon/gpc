@@ -1,0 +1,36 @@
+{
+  "total_preloads": 3,
+  "correct": 0,
+  "unknown": 3,
+  "errors": 0,
+  "accuracy": 0,
+  "results": [
+    {
+      "file": "examples/basic.go",
+      "line": 34,
+      "relation": "User",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 34,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/basic.go",
+      "line": 37,
+      "relation": "User.Profile",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 37,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/basic.go",
+      "line": 40,
+      "relation": "User.Profile.Address",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 40,
+      "status": "unknown"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-package vms
+package vms_invoice_test
 
 import (
 	"gorm.io/gorm"

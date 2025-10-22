@@ -1,0 +1,90 @@
+{
+  "total_preloads": 9,
+  "correct": 0,
+  "unknown": 9,
+  "errors": 0,
+  "accuracy": 0,
+  "results": [
+    {
+      "file": "examples/complex.go",
+      "line": 47,
+      "relation": "OrderItems",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 47,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 47,
+      "relation": "Customer",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 47,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 52,
+      "relation": "OrderItems.Product",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 52,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 55,
+      "relation": "OrderItems.Product.Category",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 55,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 58,
+      "relation": "OrderItems.Product.Images",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 58,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 58,
+      "relation": "OrderItems.Product.Category.Tags",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 58,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 68,
+      "relation": "OrderItems.Product.Categor",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 68,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 71,
+      "relation": "Items",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 71,
+      "status": "unknown"
+    },
+    {
+      "file": "examples/complex.go",
+      "line": 74,
+      "relation": "Product",
+      "model": "ComplexOrder",
+      "variable": "orders",
+      "find_line": 74,
+      "status": "unknown"
+    }
+  ]
+}
