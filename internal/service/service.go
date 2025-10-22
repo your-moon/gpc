@@ -103,6 +103,8 @@ func getParentDir(filePath string) string {
 	}
 	if lastSlash > 0 {
 		return filePath[:lastSlash]
+	} else if lastSlash == 0 {
+		return "/"
 	}
 	return "."
 }

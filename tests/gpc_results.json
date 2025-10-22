@@ -9,16 +9,18 @@
       "file": "./simple/simple_test.go",
       "line": 40,
       "relation": "User",
-      "model": "Order",
-      "variable": "orders",
+      "model": "Preload",
+      "variable": "orderDB",
+      "find_line": 42,
       "status": "correct"
     },
     {
       "file": "./simple/simple_test.go",
       "line": 41,
       "relation": "User",
-      "model": "Order",
-      "variable": "orders",
+      "model": "Preload",
+      "variable": "userDB",
+      "find_line": 43,
       "status": "correct"
     },
     {

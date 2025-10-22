@@ -175,7 +175,8 @@ func extractVariableFromPreloadCall(lineContent string) string {
 	// Check for := assignment
 	if assignIndex := strings.Index(lineContent, ":="); assignIndex != -1 {
 		beforeAssign := strings.TrimSpace(lineContent[:assignIndex])
-		if strings.Contains(beforeAssign, "db.Preload") || strings.Contains(beforeAssign, ".Preload") {
+		afterAssign := strings.TrimSpace(lineContent[assignIndex+2:])
+		if strings.Contains(afterAssign, "db.Preload") || strings.Contains(afterAssign, ".Preload") {
 			// Extract variable name before :=
 			parts := strings.Fields(beforeAssign)
 			if len(parts) > 0 {
@@ -187,7 +188,8 @@ func extractVariableFromPreloadCall(lineContent string) string {
 	// Check for = assignment
 	if assignIndex := strings.Index(lineContent, "="); assignIndex != -1 {
 		beforeAssign := strings.TrimSpace(lineContent[:assignIndex])
-		if strings.Contains(beforeAssign, "db.Preload") || strings.Contains(beforeAssign, ".Preload") {
+		afterAssign := strings.TrimSpace(lineContent[assignIndex+1:])
+		if strings.Contains(afterAssign, "db.Preload") || strings.Contains(afterAssign, ".Preload") {
 			// Extract variable name before =
 			parts := strings.Fields(beforeAssign)
 			if len(parts) > 0 {
