@@ -80,6 +80,11 @@ type AnalysisResult struct {
 	Results       []PreloadResult `json:"results"`
 }
 
+var (
+	outputFormat string
+	outputFile   string
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "gpc [file or directory]",
 	Short: "GORM Preload Checker - validates GORM Preload() calls",
@@ -94,6 +99,11 @@ When you specify a directory, it will:
 - Find struct definitions in the entire directory`,
 	Args: cobra.ExactArgs(1),
 	Run:  runChecker,
+}
+
+func init() {
+	rootCmd.Flags().StringVarP(&outputFormat, "output", "o", "console", "Output format: console (default) or json")
+	rootCmd.Flags().StringVarP(&outputFile, "file", "f", "gpc_results.json", "Output file for json format")
 }
 
 func main() {
@@ -157,9 +167,13 @@ func runChecker(cmd *cobra.Command, args []string) {
 	}
 
 	// Write structured output to file
-	writeStructuredOutput(preloadCalls, gormCalls, varAssignments, variableTypes)
-
-	fmt.Printf("✅ Analysis complete! Results written to gpc_results.json\n")
+	// Write output based on format
+	if outputFormat == "json" {
+		writeStructuredOutput(preloadCalls, gormCalls, varAssignments, variableTypes)
+		fmt.Printf("✅ Analysis complete! Results written to %s\n", outputFile)
+	} else {
+		writeConsoleOutput(preloadCalls, gormCalls, varAssignments, variableTypes)
+	}
 
 	// Print all structs found
 	// fmt.Printf("\n=== STRUCTS FOUND ===\n")
@@ -1101,11 +1115,94 @@ func writeStructuredOutput(preloadCalls []PreloadCall, gormCalls []GormCall, var
 		return
 	}
 
-	err = os.WriteFile("gpc_results.json", jsonData, 0644)
+	err = os.WriteFile(outputFile, jsonData, 0644)
 	if err != nil {
 		fmt.Printf("Error writing file: %v\n", err)
 		return
 	}
+}
+
+func writeConsoleOutput(preloadCalls []PreloadCall, gormCalls []GormCall, varAssignments []VariableAssignment, variableTypes []VariableType) {
+	// Create a map of variable assignments for quick lookup
+	varMap := make(map[string]VariableAssignment)
+	for _, assignment := range varAssignments {
+		varMap[assignment.VarName] = assignment
+	}
+
+	// Create a map of variable types for quick lookup
+	typeMap := make(map[string]VariableType)
+	for _, varType := range variableTypes {
+		// Use file + scope + variable name as key to handle variables with same name in different scopes/files
+		key := varType.File + ":" + varType.Scope + ":" + varType.VarName
+		typeMap[key] = varType
+	}
+
+	correct := 0
+	unknown := 0
+	errors := 0
+
+	fmt.Println("🔍 GORM Preload Analysis Results")
+	fmt.Println("=================================")
+
+	// Process each preload call
+	for _, call := range preloadCalls {
+		// Find the variable name and Find call that determined this model
+		varName, findCall := findVariableAndFindCall(call, gormCalls, varMap)
+
+		// Determine model from the actual variable type
+		var model string
+		var status string
+
+		if varName != "" {
+			// Look up the actual type of the variable
+			key := call.File + ":" + call.Scope + ":" + varName
+			if varType, exists := typeMap[key]; exists {
+				model = varType.ModelName
+				status = "✅"
+				correct++
+			} else {
+				// Fallback to variable name inference if type not found
+				model = inferModelFromVariableName(varName)
+				if model != "" {
+					status = "✅"
+					correct++
+				} else {
+					status = "❓"
+					unknown++
+				}
+			}
+		} else {
+			model = "Unknown"
+			status = "❓"
+			unknown++
+		}
+
+		// Print result
+		fmt.Printf("%s %s:%d %s -> %s", status, call.File, call.Line, call.Relation, model)
+		if varName != "" {
+			fmt.Printf(" (var: %s", varName)
+			if findCall != "" {
+				fmt.Printf(", %s", findCall)
+			}
+			fmt.Printf(")")
+		}
+		fmt.Println()
+	}
+
+	// Print summary
+	total := len(preloadCalls)
+	accuracy := 0.0
+	if total > 0 {
+		accuracy = float64(correct) / float64(total) * 100
+	}
+
+	fmt.Println("\n📊 Summary")
+	fmt.Println("==========")
+	fmt.Printf("Total Preloads: %d\n", total)
+	fmt.Printf("✅ Correct:     %d\n", correct)
+	fmt.Printf("❓ Unknown:     %d\n", unknown)
+	fmt.Printf("❌ Errors:      %d\n", errors)
+	fmt.Printf("📈 Accuracy:    %.1f%%\n", accuracy)
 }
 
 // extractMultiLineContent extracts the complete content of a multi-line GORM call

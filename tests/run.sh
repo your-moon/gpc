@@ -30,8 +30,8 @@ run_test() {
     
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
     
-    # Run the test
-    if ./gpc "$test_file" > /dev/null 2>&1; then
+    # Run the test with JSON output
+    if ./gpc -o json "$test_file" > /dev/null 2>&1; then
         # Compare results
         if [ -f "$expected_file" ] && command -v jq &> /dev/null; then
             if jq -e '.total_preloads' gpc_results.json > /dev/null 2>&1; then
