@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/your-moon/gpc/internal/analyzer"
 	"github.com/your-moon/gpc/internal/models"
@@ -93,18 +94,10 @@ func (s *Service) AnalyzeTarget(target string) error {
 
 // getParentDir returns the parent directory of a file path
 func getParentDir(filePath string) string {
-	// Simple implementation - in a real scenario you might want to use filepath.Dir
-	lastSlash := -1
-	for i := len(filePath) - 1; i >= 0; i-- {
-		if filePath[i] == '/' {
-			lastSlash = i
-			break
-		}
+	// Use filepath.Dir for proper cross-platform path handling
+	parent := filepath.Dir(filePath)
+	if parent == "." {
+		return "."
 	}
-	if lastSlash > 0 {
-		return filePath[:lastSlash]
-	} else if lastSlash == 0 {
-		return "/"
-	}
-	return "."
+	return parent
 }

@@ -4,216 +4,345 @@ import (
 	"testing"
 
 	"github.com/your-moon/gpc/internal/models"
+	"github.com/your-moon/gpc/internal/testutils"
 )
 
 func TestAnalyzePreloads(t *testing.T) {
-	// Create test data
-	preloadCalls := []models.PreloadCall{
-		{
-			File:     "test.go",
-			Line:     10,
-			Relation: "User",
-			Scope:    "TestFunc",
-			LineContent: "db.Preload(\"User\").Find(&orders)",
-		},
-		{
-			File:     "test.go",
-			Line:     15,
-			Relation: "Profile",
-			Scope:    "TestFunc",
-			LineContent: "db.Preload(\"Profile\").First(&user)",
-		},
-	}
-
-	gormCalls := []models.GormCall{
-		{
-			File:        "test.go",
-			Line:        10,
-			Method:      "Find",
-			Scope:       "TestFunc",
-			LineContent: "db.Preload(\"User\").Find(&orders)",
-		},
-		{
-			File:        "test.go",
-			Line:        15,
-			Method:      "First",
-			Scope:       "TestFunc",
-			LineContent: "db.Preload(\"Profile\").First(&user)",
-		},
-	}
-
-	varAssignments := []models.VariableAssignment{
-		{
-			VarName:     "orders",
-			AssignedTo:  "[]Order",
-			Line:        8,
-			File:        "test.go",
-			Scope:       "TestFunc",
-			LineContent: "var orders []Order",
-		},
-		{
-			VarName:     "user",
-			AssignedTo:  "User",
-			Line:        13,
-			File:        "test.go",
-			Scope:       "TestFunc",
-			LineContent: "var user User",
-		},
-	}
-
-	variableTypes := []models.VariableType{
-		{
-			VarName:   "orders",
-			TypeName:  "[]Order",
-			ModelName: "Order",
-			Scope:     "TestFunc",
-			File:      "test.go",
-			Line:      8,
-		},
-		{
-			VarName:   "user",
-			TypeName:  "User",
-			ModelName: "User",
-			Scope:     "TestFunc",
-			File:      "test.go",
-			Line:      13,
-		},
-	}
-
-	// Test analysis
-	results := AnalyzePreloads(preloadCalls, gormCalls, varAssignments, variableTypes)
-
-	// Verify results
-	expectedResults := []struct {
-		relation string
-		model    string
-		variable string
-		status   string
-		findLine int
+	tests := []struct {
+		name           string
+		preloadCalls   []models.PreloadCall
+		gormCalls      []models.GormCall
+		varAssignments []models.VariableAssignment
+		variableTypes  []models.VariableType
+		expected       []testutils.ExpectedAnalysisResult
 	}{
-		{"User", "Order", "orders", "correct", 10},
-		{"Profile", "User", "user", "correct", 15},
+		{
+			name: "Basic analysis",
+			preloadCalls: []models.PreloadCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Relation:    "User",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"User\").Find(&orders)",
+				},
+				{
+					File:        "test.go",
+					Line:        15,
+					Relation:    "Profile",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"Profile\").First(&user)",
+				},
+			},
+			gormCalls: []models.GormCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Method:      "Find",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"User\").Find(&orders)",
+				},
+				{
+					File:        "test.go",
+					Line:        15,
+					Method:      "First",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"Profile\").First(&user)",
+				},
+			},
+			varAssignments: []models.VariableAssignment{
+				{
+					VarName:     "orders",
+					AssignedTo:  "[]Order",
+					Line:        8,
+					File:        "test.go",
+					Scope:       "TestFunc",
+					LineContent: "var orders []Order",
+				},
+				{
+					VarName:     "user",
+					AssignedTo:  "User",
+					Line:        13,
+					File:        "test.go",
+					Scope:       "TestFunc",
+					LineContent: "var user User",
+				},
+			},
+			variableTypes: []models.VariableType{
+				{
+					VarName:   "orders",
+					TypeName:  "[]Order",
+					ModelName: "Order",
+					Scope:     "TestFunc",
+					File:      "test.go",
+					Line:      8,
+				},
+				{
+					VarName:   "user",
+					TypeName:  "User",
+					ModelName: "User",
+					Scope:     "TestFunc",
+					File:      "test.go",
+					Line:      13,
+				},
+			},
+			expected: []testutils.ExpectedAnalysisResult{
+				{Relation: "User", Model: "Order", Variable: "orders", Status: "correct", FindLine: 10},
+				{Relation: "Profile", Model: "User", Variable: "user", Status: "correct", FindLine: 15},
+			},
+		},
+		{
+			name: "Unknown model case",
+			preloadCalls: []models.PreloadCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Relation:    "UnknownRelation",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"UnknownRelation\").Find(&orders)",
+				},
+			},
+			gormCalls: []models.GormCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Method:      "Find",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"UnknownRelation\").Find(&orders)",
+				},
+			},
+			varAssignments: []models.VariableAssignment{},
+			variableTypes: []models.VariableType{
+				{
+					VarName:   "orders",
+					TypeName:  "[]Order",
+					ModelName: "Order",
+					Scope:     "TestFunc",
+					File:      "test.go",
+					Line:      8,
+				},
+			},
+			expected: []testutils.ExpectedAnalysisResult{
+				{Relation: "UnknownRelation", Model: "Order", Variable: "orders", Status: "correct", FindLine: 10},
+			},
+		},
 	}
 
-	if len(results) != len(expectedResults) {
-		t.Errorf("Expected %d results, got %d", len(expectedResults), len(results))
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test analysis
+			results := AnalyzePreloads(tt.preloadCalls, tt.gormCalls, tt.varAssignments, tt.variableTypes)
 
-	for i, expected := range expectedResults {
-		if i >= len(results) {
-			t.Errorf("Missing result for relation %s", expected.relation)
-			continue
-		}
-
-		result := results[i]
-		if result.Relation != expected.relation {
-			t.Errorf("Expected relation %s, got %s", expected.relation, result.Relation)
-		}
-		if result.Model != expected.model {
-			t.Errorf("Expected model %s, got %s", expected.model, result.Model)
-		}
-		if result.Variable != expected.variable {
-			t.Errorf("Expected variable %s, got %s", expected.variable, result.Variable)
-		}
-		if result.Status != expected.status {
-			t.Errorf("Expected status %s, got %s", expected.status, result.Status)
-		}
-		if result.FindLine != expected.findLine {
-			t.Errorf("Expected find line %d, got %d", expected.findLine, result.FindLine)
-		}
+			// Verify results
+			testutils.AssertAnalysisResults(t, results, tt.expected)
+		})
 	}
 }
 
 func TestFindVariableAndFindCall(t *testing.T) {
-	// Test case 1: Same line method chain
-	preloadCall := models.PreloadCall{
-		File:        "test.go",
-		Line:        10,
-		Relation:    "User",
-		Scope:       "TestFunc",
-		LineContent: "db.Preload(\"User\").Find(&orders)",
-	}
-
-	gormCalls := []models.GormCall{
+	tests := []struct {
+		name         string
+		preloadCall  models.PreloadCall
+		gormCalls    []models.GormCall
+		varMap       map[string]models.VariableAssignment
+		expectedVar  string
+		expectedCall string
+	}{
 		{
-			File:        "test.go",
-			Line:        10,
-			Method:      "Find",
-			Scope:       "TestFunc",
-			LineContent: "db.Preload(\"User\").Find(&orders)",
+			name: "Same line method chain",
+			preloadCall: models.PreloadCall{
+				File:        "test.go",
+				Line:        10,
+				Relation:    "User",
+				Scope:       "TestFunc",
+				LineContent: "db.Preload(\"User\").Find(&orders)",
+			},
+			gormCalls: []models.GormCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Method:      "Find",
+					Scope:       "TestFunc",
+					LineContent: "db.Preload(\"User\").Find(&orders)",
+				},
+			},
+			varMap:       map[string]models.VariableAssignment{},
+			expectedVar:  "orders",
+			expectedCall: "line 10",
+		},
+		{
+			name: "Multi-line method chain",
+			preloadCall: models.PreloadCall{
+				File:        "test.go",
+				Line:        10,
+				Relation:    "User",
+				Scope:       "TestFunc",
+				LineContent: "db. Preload(\"User\"). Preload(\"User.Profile\"). Where(\"id = ?\", 1). Find(&orders)",
+			},
+			gormCalls: []models.GormCall{
+				{
+					File:        "test.go",
+					Line:        10,
+					Method:      "Find",
+					Scope:       "TestFunc",
+					LineContent: "db. Preload(\"User\"). Preload(\"User.Profile\"). Where(\"id = ?\", 1). Find(&orders)",
+				},
+			},
+			varMap:       map[string]models.VariableAssignment{},
+			expectedVar:  "orders",
+			expectedCall: "line 10",
 		},
 	}
 
-	varMap := map[string]models.VariableAssignment{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			varName, findCall := findVariableAndFindCall(tt.preloadCall, tt.gormCalls, tt.varMap)
 
-	varName, findCall := findVariableAndFindCall(preloadCall, gormCalls, varMap)
-
-	if varName != "orders" {
-		t.Errorf("Expected variable name 'orders', got '%s'", varName)
-	}
-	if findCall != "line 10" {
-		t.Errorf("Expected find call 'line 10', got '%s'", findCall)
+			if varName != tt.expectedVar {
+				t.Errorf("Expected variable name '%s', got '%s'", tt.expectedVar, varName)
+			}
+			if findCall != tt.expectedCall {
+				t.Errorf("Expected find call '%s', got '%s'", tt.expectedCall, findCall)
+			}
+		})
 	}
 }
 
 func TestExtractVariableNameFromFindCall(t *testing.T) {
-	testCases := []struct {
+	tests := []struct {
+		name        string
 		lineContent string
 		expected    string
 	}{
-		{"db.Preload(\"User\").Find(&orders)", "orders"},
-		{"db.First(&user)", "user"},
-		{"db.FirstOrCreate(&currentUser)", "currentUser"},
-		{"db.Find(&items, id)", "items"},
-		{"db.First(&user, \"id = ?\", 1)", "user"},
+		{
+			name:        "Find call",
+			lineContent: "db.Preload(\"User\").Find(&orders)",
+			expected:    "orders",
+		},
+		{
+			name:        "First call",
+			lineContent: "db.First(&user)",
+			expected:    "user",
+		},
+		{
+			name:        "FirstOrCreate call",
+			lineContent: "db.FirstOrCreate(&currentUser)",
+			expected:    "currentUser",
+		},
+		{
+			name:        "Find with parameters",
+			lineContent: "db.Find(&items, id)",
+			expected:    "items",
+		},
+		{
+			name:        "First with parameters",
+			lineContent: "db.First(&user, \"id = ?\", 1)",
+			expected:    "user",
+		},
 	}
 
-	for _, tc := range testCases {
-		result := extractVariableNameFromFindCall(tc.lineContent)
-		if result != tc.expected {
-			t.Errorf("For line '%s', expected '%s', got '%s'", tc.lineContent, tc.expected, result)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractVariableNameFromFindCall(tt.lineContent)
+			if result != tt.expected {
+				t.Errorf("For line '%s', expected '%s', got '%s'", tt.lineContent, tt.expected, result)
+			}
+		})
 	}
 }
 
 func TestExtractVariableFromPreloadCall(t *testing.T) {
-	testCases := []struct {
+	tests := []struct {
+		name        string
 		lineContent string
 		expected    string
 	}{
-		{"orderDB := db.Preload(\"User\")", "orderDB"},
-		{"userDB = db.Preload(\"Profile\")", "userDB"},
-		{"db.Preload(\"User\").Find(&orders)", ""}, // No assignment
-		{"var orderDB = db.Preload(\"User\")", "orderDB"},
+		{
+			name:        "Assignment with :=",
+			lineContent: "orderDB := db.Preload(\"User\")",
+			expected:    "orderDB",
+		},
+		{
+			name:        "Assignment with =",
+			lineContent: "userDB = db.Preload(\"Profile\")",
+			expected:    "userDB",
+		},
+		{
+			name:        "No assignment",
+			lineContent: "db.Preload(\"User\").Find(&orders)",
+			expected:    "",
+		},
+		{
+			name:        "Var declaration",
+			lineContent: "var orderDB = db.Preload(\"User\")",
+			expected:    "orderDB",
+		},
 	}
 
-	for _, tc := range testCases {
-		result := extractVariableFromPreloadCall(tc.lineContent)
-		if result != tc.expected {
-			t.Errorf("For line '%s', expected '%s', got '%s'", tc.lineContent, tc.expected, result)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractVariableFromPreloadCall(tt.lineContent)
+			if result != tt.expected {
+				t.Errorf("For line '%s', expected '%s', got '%s'", tt.lineContent, tt.expected, result)
+			}
+		})
 	}
 }
 
 func TestInferModelFromVariableName(t *testing.T) {
-	testCases := []struct {
+	tests := []struct {
+		name     string
 		varName  string
 		expected string
 	}{
-		{"orders", "Order"},
-		{"users", "User"},
-		{"orderList", "Order"},
-		{"userItems", "UserItem"}, // Fixed: should be UserItem, not User
-		{"order", "Order"},
-		{"user", "User"},
-		{"", ""},
-		{"a", "A"},
+		{
+			name:     "Plural to singular",
+			varName:  "orders",
+			expected: "Order",
+		},
+		{
+			name:     "Plural to singular",
+			varName:  "users",
+			expected: "User",
+		},
+		{
+			name:     "Compound name",
+			varName:  "orderList",
+			expected: "Order",
+		},
+		{
+			name:     "Compound name with multiple words",
+			varName:  "userItems",
+			expected: "UserItem",
+		},
+		{
+			name:     "Single word",
+			varName:  "order",
+			expected: "Order",
+		},
+		{
+			name:     "Single word",
+			varName:  "user",
+			expected: "User",
+		},
+		{
+			name:     "Empty string",
+			varName:  "",
+			expected: "",
+		},
+		{
+			name:     "Single character",
+			varName:  "a",
+			expected: "A",
+		},
 	}
 
-	for _, tc := range testCases {
-		result := inferModelFromVariableName(tc.varName)
-		if result != tc.expected {
-			t.Errorf("For variable '%s', expected '%s', got '%s'", tc.varName, tc.expected, result)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := inferModelFromVariableName(tt.varName)
+			if result != tt.expected {
+				t.Errorf("For variable '%s', expected '%s', got '%s'", tt.varName, tt.expected, result)
+			}
+		})
 	}
 }

@@ -1,14 +1,23 @@
 package parser
 
 import (
-	"os"
 	"testing"
+
+	"github.com/your-moon/gpc/internal/testutils"
 )
 
 func TestFindPreloadCalls(t *testing.T) {
-	// Create a test file content
-	testFile := "test_preload.go"
-	testContent := `package main
+	tests := []struct {
+		name     string
+		files    []testutils.TestFile
+		expected []testutils.ExpectedPreloadCall
+	}{
+		{
+			name: "Basic preload calls",
+			files: []testutils.TestFile{
+				{
+					Name: "test.go",
+					Content: `package main
 
 import "gorm.io/gorm"
 
@@ -36,48 +45,88 @@ func TestPreloads() {
 	
 	// Nested preload
 	db.Preload("User.Profile").Find(&orders)
-}`
+}`,
+				},
+			},
+			expected: []testutils.ExpectedPreloadCall{
+				{Relation: "User", Scope: "TestPreloads"},
+				{Relation: "User", Scope: "TestPreloads"},
+				{Relation: "Items", Scope: "TestPreloads"},
+				{Relation: "User.Profile", Scope: "TestPreloads"},
+			},
+		},
+		{
+			name: "Multi-line preload calls",
+			files: []testutils.TestFile{
+				{
+					Name: "multiline.go",
+					Content: `package main
 
-	// Write test file
-	err := os.WriteFile(testFile, []byte(testContent), 0644)
-	if err != nil {
-		t.Fatalf("Failed to write test file: %v", err)
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type Order struct {
+	ID     int64
+	UserID int64
+	User   User
+}
+
+func TestMultiLine() {
+	var db *gorm.DB
+	var orders []Order
+	
+	db.
+		Preload("User").
+		Preload("User.Profile").
+		Where("id = ?", 1).
+		Find(&orders)
+}`,
+				},
+			},
+			expected: []testutils.ExpectedPreloadCall{
+				{Relation: "User", Scope: "TestMultiLine"},
+				{Relation: "User.Profile", Scope: "TestMultiLine"},
+			},
+		},
 	}
-	defer os.Remove(testFile)
 
-	// Test parsing
-	preloadCalls := FindPreloadCalls(testFile)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cleanup, filePaths := testutils.CreateTestFiles(t, tt.files)
+			defer cleanup()
 
-	// Verify results - check that we have the expected relations (order may vary)
-	expectedRelations := map[string]int{
-		"User":         2, // Should appear twice
-		"Items":        1,
-		"User.Profile": 1,
-	}
+			// Test parsing
+			preloadCalls := FindPreloadCalls(filePaths[0])
 
-	actualRelations := make(map[string]int)
-	for _, call := range preloadCalls {
-		actualRelations[call.Relation]++
-	}
-
-	if len(preloadCalls) != 4 {
-		t.Errorf("Expected 4 preload calls, got %d", len(preloadCalls))
-	}
-
-	for relation, expectedCount := range expectedRelations {
-		actualCount := actualRelations[relation]
-		if actualCount != expectedCount {
-			t.Errorf("Expected relation '%s' to appear %d times, got %d", relation, expectedCount, actualCount)
-		}
+			// Verify results
+			testutils.AssertPreloadCalls(t, preloadCalls, tt.expected)
+		})
 	}
 }
 
 func TestFindGormCalls(t *testing.T) {
-	// Create a test file content
-	testFile := "test_gorm.go"
-	testContent := `package main
+	tests := []struct {
+		name     string
+		files    []testutils.TestFile
+		expected []testutils.ExpectedGormCall
+	}{
+		{
+			name: "Basic GORM calls",
+			files: []testutils.TestFile{
+				{
+					Name: "test.go",
+					Content: `package main
 
 import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
 
 func TestGormCalls() {
 	var db *gorm.DB
@@ -92,48 +141,43 @@ func TestGormCalls() {
 	
 	// FirstOrCreate call
 	db.FirstOrCreate(&user)
-}`
-
-	// Write test file
-	err := os.WriteFile(testFile, []byte(testContent), 0644)
-	if err != nil {
-		t.Fatalf("Failed to write test file: %v", err)
-	}
-	defer os.Remove(testFile)
-
-	// Test parsing
-	gormCalls := FindGormCalls(testFile)
-
-	// Verify results - adjust expected line numbers based on actual content
-	expectedCalls := []struct {
-		method string
-	}{
-		{"Find"},
-		{"First"},
-		{"FirstOrCreate"},
+}`,
+				},
+			},
+			expected: []testutils.ExpectedGormCall{
+				{Method: "Find", Scope: "TestGormCalls"},
+				{Method: "First", Scope: "TestGormCalls"},
+				{Method: "FirstOrCreate", Scope: "TestGormCalls"},
+			},
+		},
 	}
 
-	if len(gormCalls) != len(expectedCalls) {
-		t.Errorf("Expected %d gorm calls, got %d", len(expectedCalls), len(gormCalls))
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cleanup, filePaths := testutils.CreateTestFiles(t, tt.files)
+			defer cleanup()
 
-	for i, expected := range expectedCalls {
-		if i >= len(gormCalls) {
-			t.Errorf("Missing gorm call for method %s", expected.method)
-			continue
-		}
+			// Test parsing
+			gormCalls := FindGormCalls(filePaths[0])
 
-		call := gormCalls[i]
-		if call.Method != expected.method {
-			t.Errorf("Expected method %s, got %s", expected.method, call.Method)
-		}
+			// Verify results
+			testutils.AssertGormCalls(t, gormCalls, tt.expected)
+		})
 	}
 }
 
 func TestFindVariableTypes(t *testing.T) {
-	// Create a test file content
-	testFile := "test_vars.go"
-	testContent := `package main
+	tests := []struct {
+		name     string
+		files    []testutils.TestFile
+		expected []testutils.ExpectedVariableType
+	}{
+		{
+			name: "Variable type detection",
+			files: []testutils.TestFile{
+				{
+					Name: "test.go",
+					Content: `package main
 
 import "gorm.io/gorm"
 
@@ -159,58 +203,45 @@ func TestVariables() {
 	
 	// With assignment
 	var db *gorm.DB
-}`
-
-	// Write test file
-	err := os.WriteFile(testFile, []byte(testContent), 0644)
-	if err != nil {
-		t.Fatalf("Failed to write test file: %v", err)
-	}
-	defer os.Remove(testFile)
-
-	// Test parsing
-	variableTypes := FindVariableTypes(testFile)
-
-	// Verify results
-	expectedVars := []struct {
-		name     string
-		typeName string
-		model    string
-	}{
-		{"users", "[]User", "User"},
-		{"order", "Order", "Order"},
-		{"orders", "[]Order", "Order"},
-		{"currentUser", "User", "User"},
-		{"db", "*gorm.DB", "DB"},
+}`,
+				},
+			},
+			expected: []testutils.ExpectedVariableType{
+				{VarName: "users", TypeName: "[]User", ModelName: "User", Scope: "TestVariables"},
+				{VarName: "order", TypeName: "Order", ModelName: "Order", Scope: "TestVariables"},
+				{VarName: "orders", TypeName: "[]Order", ModelName: "Order", Scope: "TestVariables"},
+				{VarName: "currentUser", TypeName: "User", ModelName: "User", Scope: "TestVariables"},
+				{VarName: "db", TypeName: "*gorm.DB", ModelName: "DB", Scope: "TestVariables"},
+			},
+		},
 	}
 
-	if len(variableTypes) != len(expectedVars) {
-		t.Errorf("Expected %d variable types, got %d", len(expectedVars), len(variableTypes))
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cleanup, filePaths := testutils.CreateTestFiles(t, tt.files)
+			defer cleanup()
 
-	for i, expected := range expectedVars {
-		if i >= len(variableTypes) {
-			t.Errorf("Missing variable %s", expected.name)
-			continue
-		}
+			// Test parsing
+			variableTypes := FindVariableTypes(filePaths[0])
 
-		varType := variableTypes[i]
-		if varType.VarName != expected.name {
-			t.Errorf("Expected var name %s, got %s", expected.name, varType.VarName)
-		}
-		if varType.TypeName != expected.typeName {
-			t.Errorf("Expected type %s, got %s", expected.typeName, varType.TypeName)
-		}
-		if varType.ModelName != expected.model {
-			t.Errorf("Expected model %s, got %s", expected.model, varType.ModelName)
-		}
+			// Verify results
+			testutils.AssertVariableTypes(t, variableTypes, tt.expected)
+		})
 	}
 }
 
 func TestParseStructsFromFile(t *testing.T) {
-	// Create a test file content
-	testFile := "test_structs.go"
-	testContent := `package main
+	tests := []struct {
+		name     string
+		files    []testutils.TestFile
+		expected map[string][]string
+	}{
+		{
+			name: "Struct parsing",
+			files: []testutils.TestFile{
+				{
+					Name: "test.go",
+					Content: `package main
 
 type User struct {
 	ID   int64
@@ -222,46 +253,47 @@ type Order struct {
 	ID     int64
 	UserID int64
 	User   User
-}`
-
-	// Write test file
-	err := os.WriteFile(testFile, []byte(testContent), 0644)
-	if err != nil {
-		t.Fatalf("Failed to write test file: %v", err)
-	}
-	defer os.Remove(testFile)
-
-	// Test parsing
-	structs := ParseStructsFromFile(testFile)
-
-	// Verify results
-	expectedStructs := []struct {
-		name   string
-		fields []string
-	}{
-		{"User", []string{"ID", "Name", "Age"}},
-		{"Order", []string{"ID", "UserID", "User"}},
+}`,
+				},
+			},
+			expected: map[string][]string{
+				"User":  {"ID", "Name", "Age"},
+				"Order": {"ID", "UserID", "User"},
+			},
+		},
 	}
 
-	if len(structs) != len(expectedStructs) {
-		t.Errorf("Expected %d structs, got %d", len(expectedStructs), len(structs))
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cleanup, filePaths := testutils.CreateTestFiles(t, tt.files)
+			defer cleanup()
 
-	for _, expected := range expectedStructs {
-		structInfo, exists := structs[expected.name]
-		if !exists {
-			t.Errorf("Missing struct %s", expected.name)
-			continue
-		}
+			// Test parsing
+			structs := ParseStructsFromFile(filePaths[0])
 
-		if structInfo.Name != expected.name {
-			t.Errorf("Expected struct name %s, got %s", expected.name, structInfo.Name)
-		}
-
-		for _, field := range expected.fields {
-			if _, exists := structInfo.Fields[field]; !exists {
-				t.Errorf("Missing field %s in struct %s", field, expected.name)
+			// Verify results
+			if len(structs) != len(tt.expected) {
+				t.Errorf("Expected %d structs, got %d", len(tt.expected), len(structs))
+				return
 			}
-		}
+
+			for structName, expectedFields := range tt.expected {
+				structInfo, exists := structs[structName]
+				if !exists {
+					t.Errorf("Missing struct %s", structName)
+					continue
+				}
+
+				if structInfo.Name != structName {
+					t.Errorf("Expected struct name %s, got %s", structName, structInfo.Name)
+				}
+
+				for _, field := range expectedFields {
+					if _, exists := structInfo.Fields[field]; !exists {
+						t.Errorf("Missing field %s in struct %s", field, structName)
+					}
+				}
+			}
+		})
 	}
 }
