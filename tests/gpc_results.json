@@ -1,0 +1,214 @@
+{
+  "total_preloads": 23,
+  "correct": 23,
+  "unknown": 0,
+  "errors": 0,
+  "accuracy": 100,
+  "results": [
+    {
+      "file": "./simple/simple_test.go",
+      "line": 40,
+      "relation": "User",
+      "model": "Order",
+      "variable": "orders",
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 41,
+      "relation": "User",
+      "model": "Order",
+      "variable": "orders",
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 52,
+      "relation": "User",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 52,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 53,
+      "relation": "User.Profile",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 53,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 54,
+      "relation": "User.Profile.Address",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 54,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 57,
+      "relation": "Usr",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 57,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 58,
+      "relation": "User.Profil",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 58,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 59,
+      "relation": "User.Profile.Addres",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 59,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 72,
+      "relation": "Driver",
+      "model": "Trip",
+      "variable": "trips",
+      "find_line": 72,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 73,
+      "relation": "Driver",
+      "model": "Trip",
+      "variable": "trips2",
+      "find_line": 73,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 74,
+      "relation": "Customer",
+      "model": "Invoice",
+      "variable": "invoices",
+      "find_line": 74,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 75,
+      "relation": "Customer",
+      "model": "Invoice",
+      "variable": "invoices2",
+      "find_line": 75,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 78,
+      "relation": "Customer",
+      "model": "Trip",
+      "variable": "trips",
+      "find_line": 78,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 79,
+      "relation": "Driver",
+      "model": "Invoice",
+      "variable": "invoices",
+      "find_line": 79,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 87,
+      "relation": "User.Profile",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 87,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 87,
+      "relation": "User",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 87,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 95,
+      "relation": "Items",
+      "model": "Trip",
+      "variable": "trips",
+      "find_line": 95,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 95,
+      "relation": "Driver",
+      "model": "Trip",
+      "variable": "trips",
+      "find_line": 95,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 106,
+      "relation": "",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 106,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 109,
+      "relation": "...",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 109,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 110,
+      "relation": "User..Profile",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 111,
+      "relation": ".User",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 111,
+      "status": "correct"
+    },
+    {
+      "file": "./simple/simple_test.go",
+      "line": 112,
+      "relation": "User.",
+      "model": "Order",
+      "variable": "orders",
+      "find_line": 112,
+      "status": "correct"
+    }
+  ]
+}
