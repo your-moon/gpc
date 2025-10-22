@@ -1,0 +1,45 @@
+{
+  "total_preloads": 4,
+  "correct": 4,
+  "unknown": 0,
+  "errors": 0,
+  "accuracy": 100,
+  "results": [
+    {
+      "file": "./testdata/vms_auth_test.go",
+      "line": 46,
+      "relation": "Org",
+      "model": "Staff",
+      "variable": "user",
+      "find_line": 46,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_auth_test.go",
+      "line": 46,
+      "relation": "Role",
+      "model": "Staff",
+      "variable": "user",
+      "find_line": 46,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_auth_test.go",
+      "line": 56,
+      "relation": "Org",
+      "model": "Role",
+      "variable": "role",
+      "find_line": 56,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_auth_test.go",
+      "line": 71,
+      "relation": "Org",
+      "model": "Role",
+      "variable": "role",
+      "find_line": 71,
+      "status": "correct"
+    }
+  ]
+}

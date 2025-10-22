@@ -1,0 +1,153 @@
+{
+  "total_preloads": 16,
+  "correct": 16,
+  "unknown": 0,
+  "errors": 0,
+  "accuracy": 100,
+  "results": [
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 66,
+      "relation": "MachineQr",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 66,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 66,
+      "relation": "Map",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 66,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 66,
+      "relation": "Model",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 66,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 66,
+      "relation": "Staff",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 66,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 66,
+      "relation": "Location",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 66,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 77,
+      "relation": "MachineQr",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 77,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 77,
+      "relation": "Map",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 77,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 77,
+      "relation": "Model",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 77,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 77,
+      "relation": "Staff",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 77,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 77,
+      "relation": "Location",
+      "model": "Machine",
+      "variable": "machine",
+      "find_line": 77,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 94,
+      "relation": "Location",
+      "model": "MachineLocationHistory",
+      "variable": "items",
+      "find_line": 94,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 94,
+      "relation": "Org",
+      "model": "MachineLocationHistory",
+      "variable": "items",
+      "find_line": 94,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 108,
+      "relation": "Staff",
+      "model": "Location",
+      "variable": "items",
+      "find_line": 108,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 108,
+      "relation": "LocationCategory",
+      "model": "Location",
+      "variable": "items",
+      "find_line": 108,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 117,
+      "relation": "Staff",
+      "model": "Location",
+      "variable": "orgItems",
+      "find_line": 117,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_machine_test.go",
+      "line": 117,
+      "relation": "LocationCategory",
+      "model": "Location",
+      "variable": "orgItems",
+      "find_line": 117,
+      "status": "correct"
+    }
+  ]
+}

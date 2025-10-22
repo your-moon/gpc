@@ -1,0 +1,144 @@
+{
+  "total_preloads": 15,
+  "correct": 15,
+  "unknown": 0,
+  "errors": 0,
+  "accuracy": 100,
+  "results": [
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 110,
+      "relation": "Org",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 110,
+      "relation": "InvoiceRefund",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 110,
+      "relation": "Location.LocationCategory",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 110,
+      "relation": "Staff",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 110,
+      "relation": "Machine",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 110,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 127,
+      "relation": "Items.Product.Locales",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 127,
+      "relation": "Items.Product.Category.Locales",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 127,
+      "relation": "Items.Product",
+      "model": "Invoice",
+      "variable": "items",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 142,
+      "relation": "Candidates",
+      "model": "OrderRequest",
+      "variable": "items",
+      "find_line": 142,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 142,
+      "relation": "OrderGoodsList",
+      "model": "OrderRequest",
+      "variable": "items",
+      "find_line": 142,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 142,
+      "relation": "Machine",
+      "model": "OrderRequest",
+      "variable": "items",
+      "find_line": 142,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 142,
+      "relation": "Invoice",
+      "model": "OrderRequest",
+      "variable": "items",
+      "find_line": 142,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 158,
+      "relation": "Product.Locales",
+      "model": "InvoiceItem",
+      "variable": "items",
+      "find_line": 158,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 158,
+      "relation": "Invoice",
+      "model": "InvoiceItem",
+      "variable": "items",
+      "find_line": 158,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_invoice_test.go",
+      "line": 158,
+      "relation": "Product.Category.Locales",
+      "model": "InvoiceItem",
+      "variable": "items",
+      "find_line": 158,
+      "status": "correct"
+    }
+  ]
+}

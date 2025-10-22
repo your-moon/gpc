@@ -1,0 +1,114 @@
+{
+  "total_preloads": 12,
+  "correct": 9,
+  "unknown": 3,
+  "errors": 0,
+  "accuracy": 75,
+  "results": [
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 76,
+      "relation": "Model",
+      "model": "Unknown",
+      "find_line": 76,
+      "status": "unknown"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 76,
+      "relation": "Location",
+      "model": "Unknown",
+      "find_line": 76,
+      "status": "unknown"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 76,
+      "relation": "Staff",
+      "model": "Unknown",
+      "find_line": 76,
+      "status": "unknown"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 114,
+      "relation": "Slots",
+      "model": "Product",
+      "variable": "product",
+      "find_line": 114,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 127,
+      "relation": "Items.Product",
+      "model": "Trip",
+      "variable": "trip",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 127,
+      "relation": "Machine",
+      "model": "Trip",
+      "variable": "trip",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 127,
+      "relation": "Driver",
+      "model": "Trip",
+      "variable": "trip",
+      "find_line": 127,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 142,
+      "relation": "Staff",
+      "model": "Machine",
+      "variable": "machines1",
+      "find_line": 142,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 146,
+      "relation": "Location",
+      "model": "Machine",
+      "variable": "machines2",
+      "find_line": 146,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 150,
+      "relation": "Model",
+      "model": "Machine",
+      "variable": "machines3",
+      "find_line": 150,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 165,
+      "relation": "Staff",
+      "model": "Machine",
+      "variable": "machines",
+      "find_line": 170,
+      "status": "correct"
+    },
+    {
+      "file": "./testdata/vms_complex_test.go",
+      "line": 166,
+      "relation": "Location",
+      "model": "Machine",
+      "variable": "machines",
+      "find_line": 170,
+      "status": "correct"
+    }
+  ]
+}
