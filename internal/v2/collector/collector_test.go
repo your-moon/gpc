@@ -287,3 +287,44 @@ func GetOrders(db *gorm.DB) {
 		t.Errorf("expected 'clause.Associations', got '%s'", chains[0].Preloads[0].Relation)
 	}
 }
+
+func TestCollect_AssignedVariable(t *testing.T) {
+	dir := testutil.CreateTestModule(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	query := db.Preload("User")
+	query.Find(&orders)
+}
+`,
+	})
+
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	chains := Collect(result)
+	if len(chains) != 1 {
+		t.Fatalf("expected 1 chain, got %d", len(chains))
+	}
+	if len(chains[0].Preloads) != 1 {
+		t.Fatalf("expected 1 preload, got %d", len(chains[0].Preloads))
+	}
+	if chains[0].Preloads[0].Relation != "User" {
+		t.Errorf("expected 'User', got '%s'", chains[0].Preloads[0].Relation)
+	}
+}

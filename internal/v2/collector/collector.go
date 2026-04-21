@@ -47,13 +47,13 @@ func Collect(result *loader.Result) []Chain {
 	for _, pkg := range result.Packages {
 		for _, file := range pkg.Syntax {
 			fileName := pkg.Fset.Position(file.Pos()).Filename
+
 			ast.Inspect(file, func(n ast.Node) bool {
 				call, ok := n.(*ast.CallExpr)
 				if !ok {
 					return true
 				}
 
-				// Look for terminal calls (Find, First, etc.)
 				sel, ok := call.Fun.(*ast.SelectorExpr)
 				if !ok {
 					return true
@@ -62,12 +62,10 @@ func Collect(result *loader.Result) []Chain {
 					return true
 				}
 
-				// Check the receiver chain is gorm.DB
 				if !isGormDBExpr(sel.X, pkg.TypesInfo) {
 					return true
 				}
 
-				// Extract the terminal call
 				var terminal *TerminalCall
 				if len(call.Args) > 0 {
 					terminal = &TerminalCall{
@@ -79,8 +77,14 @@ func Collect(result *loader.Result) []Chain {
 					return true
 				}
 
-				// Walk backward through the chain to collect Preload calls
+				// Collect preloads from the inline chain
 				preloads := collectPreloads(sel.X, pkg)
+
+				// If no preloads found inline, check if the receiver is a variable
+				// that was assigned from a chain containing Preload calls
+				if len(preloads) == 0 {
+					preloads = collectPreloadsFromVariable(sel.X, file, pkg)
+				}
 
 				if len(preloads) > 0 {
 					chains = append(chains, Chain{
@@ -154,6 +158,78 @@ func resolveStringArg(expr ast.Expr, info *types.Info) (string, bool) {
 		return constant.StringVal(tv.Value), true
 	}
 	return "", false
+}
+
+// collectPreloadsFromVariable resolves preloads when the receiver is a variable
+// e.g., query := db.Preload("User"); query.Find(&orders)
+func collectPreloadsFromVariable(expr ast.Expr, file *ast.File, pkg *packages.Package) []PreloadInfo {
+	ident, ok := expr.(*ast.Ident)
+	if !ok {
+		return nil
+	}
+
+	// Find the definition of this variable
+	obj := pkg.TypesInfo.ObjectOf(ident)
+	if obj == nil {
+		return nil
+	}
+
+	// Walk the file to find the assignment
+	var preloads []PreloadInfo
+	ast.Inspect(file, func(n ast.Node) bool {
+		assign, ok := n.(*ast.AssignStmt)
+		if !ok {
+			return true
+		}
+		for i, lhs := range assign.Lhs {
+			lhsIdent, ok := lhs.(*ast.Ident)
+			if !ok {
+				continue
+			}
+			lhsObj := pkg.TypesInfo.ObjectOf(lhsIdent)
+			if lhsObj != obj {
+				continue
+			}
+			if i < len(assign.Rhs) {
+				// Found the assignment, collect preloads from the RHS
+				if call, ok := assign.Rhs[i].(*ast.CallExpr); ok {
+					preloads = collectPreloadsFromCall(call, pkg)
+				}
+			}
+		}
+		return true
+	})
+
+	return preloads
+}
+
+// collectPreloadsFromCall extracts preloads from a call expression tree.
+func collectPreloadsFromCall(call *ast.CallExpr, pkg *packages.Package) []PreloadInfo {
+	var preloads []PreloadInfo
+
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return nil
+	}
+
+	if sel.Sel.Name == "Preload" && len(call.Args) > 0 {
+		pi := PreloadInfo{Pos: call.Pos()}
+		relation, ok := resolveStringArg(call.Args[0], pkg.TypesInfo)
+		if ok {
+			pi.Relation = relation
+		} else {
+			pi.Dynamic = true
+		}
+		preloads = append(preloads, pi)
+	}
+
+	// Recurse into the receiver
+	if innerCall, ok := sel.X.(*ast.CallExpr); ok {
+		inner := collectPreloadsFromCall(innerCall, pkg)
+		preloads = append(inner, preloads...)
+	}
+
+	return preloads
 }
 
 // isGormDBExpr checks if an expression has type *gorm.DB.
