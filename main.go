@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/your-moon/gpc/internal/models"
 	"github.com/your-moon/gpc/internal/output"
-	"github.com/your-moon/gpc/internal/v2/engine"
+	"github.com/your-moon/gpc/internal/engine"
 )
 
 var (

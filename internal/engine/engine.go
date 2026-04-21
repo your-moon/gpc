@@ -2,9 +2,9 @@ package engine
 
 import (
 	"github.com/your-moon/gpc/internal/models"
-	"github.com/your-moon/gpc/internal/v2/collector"
-	"github.com/your-moon/gpc/internal/v2/loader"
-	"github.com/your-moon/gpc/internal/v2/validator"
+	"github.com/your-moon/gpc/internal/collector"
+	"github.com/your-moon/gpc/internal/loader"
+	"github.com/your-moon/gpc/internal/validator"
 )
 
 // Analyze runs the full v2 analysis pipeline on the given directory.

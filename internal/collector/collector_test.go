@@ -3,8 +3,8 @@ package collector
 import (
 	"testing"
 
-	"github.com/your-moon/gpc/internal/v2/loader"
-	"github.com/your-moon/gpc/internal/v2/testutil"
+	"github.com/your-moon/gpc/internal/loader"
+	"github.com/your-moon/gpc/internal/testutil"
 )
 
 func TestCollect_BasicChain(t *testing.T) {

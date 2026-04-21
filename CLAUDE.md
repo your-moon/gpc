@@ -6,20 +6,19 @@ Static analysis tool that validates GORM `Preload()` relation names at developme
 
 Scans Go source files for `db.Preload("...")` calls, verifies the receiver is `*gorm.DB` via type checking, resolves the model type from nearby `Find`/`First`/`FirstOrCreate` calls using `go/types`, then recursively validates relation paths against actual struct field definitions including embedded structs and cross-package types.
 
-## Architecture (v2)
+## Architecture
 
 ```
-main.go                          CLI entry (cobra), flags, delegates to v2 engine
-internal/v2/
+main.go                          CLI entry (cobra), flags, delegates to engine
+internal/
   engine/engine.go               Orchestrator: loader → collector → validator → results
   loader/loader.go               go/packages.Load wrapper, returns typed package info
   collector/collector.go         Single AST walk: extracts Preload chains with type verification
   resolver/resolver.go           Type-based model resolution from Find/First args
   validator/validator.go         Recursive relation path validation via types.Struct
-  testutil/testutil.go           Test helper: creates temp Go modules for go/packages
-internal/
   models/types.go                Shared data types (PreloadResult, AnalysisResult)
   output/output.go               Console and JSON output formatters
+  testutil/testutil.go           Test helper: creates temp Go modules for go/packages
 ```
 
 ## Pipeline Flow
@@ -34,7 +33,7 @@ internal/
 
 ```bash
 go build -o gpc .
-go test ./internal/v2/...       # v2 tests (all pass)
+go test ./internal/...          # all tests pass
 ```
 
 ## CLI Flags
@@ -53,6 +52,8 @@ go test ./internal/v2/...       # v2 tests (all pass)
 - Constant folding (`const RelUser = "User"` resolved at analysis time)
 - `clause.Associations` support
 - Variable-assigned chains (`query := db.Preload("User"); query.Find(&orders)`)
+- Embedded `*gorm.DB` wrappers (e.g. `QueryBuilder{*gorm.DB}` — Find/Preload via promotion)
+- Struct literal initialization (`&QueryBuilder{DB: db.Preload("X")}`)
 - Dynamic argument detection (non-literal args marked as skipped)
 
 ## Conventions
@@ -61,4 +62,3 @@ go test ./internal/v2/...       # v2 tests (all pass)
 - Uses `go/types` + `golang.org/x/tools/go/packages` for type-checked static analysis
 - Table-driven tests with `testing` stdlib
 - `testutil.CreateTestModule` creates temp Go modules for tests
-- v1 code still exists in `internal/` (parser, analyzer, validator, service, debug) but is unused by main.go

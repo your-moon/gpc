@@ -3,7 +3,7 @@ package engine
 import (
 	"testing"
 
-	"github.com/your-moon/gpc/internal/v2/testutil"
+	"github.com/your-moon/gpc/internal/testutil"
 )
 
 func TestAnalyze_EndToEnd(t *testing.T) {

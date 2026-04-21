@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/tools/go/packages"
 
-	"github.com/your-moon/gpc/internal/v2/loader"
+	"github.com/your-moon/gpc/internal/loader"
 )
 
 // PreloadInfo holds info about a single .Preload("X") call.
