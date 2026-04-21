@@ -49,7 +49,7 @@ func Validate(chains []collector.Chain) []models.PreloadResult {
 			// clause.Associations is always valid in GORM
 			if preload.Relation == "clause.Associations" {
 				result.Relation = "clause.Associations"
-				result.Status = "correct"
+				result.Status = "valid"
 				results = append(results, result)
 				continue
 			}
@@ -62,14 +62,14 @@ func Validate(chains []collector.Chain) []models.PreloadResult {
 			}
 
 			if model == nil {
-				result.Status = "unknown"
+				result.Status = "skipped"
 				results = append(results, result)
 				continue
 			}
 
 			// Validate the relation path recursively
 			if validatePath(preload.Relation, model) {
-				result.Status = "correct"
+				result.Status = "valid"
 			} else {
 				result.Status = "error"
 			}
