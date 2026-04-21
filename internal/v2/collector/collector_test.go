@@ -248,3 +248,42 @@ func GetData(db *gorm.DB, field string) {
 		t.Error("expected Dynamic=true for non-literal arg")
 	}
 }
+
+func TestCollect_ClauseAssociations(t *testing.T) {
+	dir := testutil.CreateTestModule(t, map[string]string{
+		"main.go": `package main
+
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+type User struct {
+	ID int64
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload(clause.Associations).Find(&orders)
+}
+`,
+	})
+
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	chains := Collect(result)
+	if len(chains) != 1 {
+		t.Fatalf("expected 1 chain, got %d", len(chains))
+	}
+	if chains[0].Preloads[0].Relation != "clause.Associations" {
+		t.Errorf("expected 'clause.Associations', got '%s'", chains[0].Preloads[0].Relation)
+	}
+}

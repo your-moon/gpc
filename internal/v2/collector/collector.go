@@ -137,8 +137,17 @@ func collectPreloads(expr ast.Expr, pkg *packages.Package) []PreloadInfo {
 }
 
 // resolveStringArg resolves a call argument to a string value.
-// Handles string literals and constants.
+// Handles string literals, constants, and clause.Associations.
 func resolveStringArg(expr ast.Expr, info *types.Info) (string, bool) {
+	// Check for clause.Associations (selector expression)
+	if sel, ok := expr.(*ast.SelectorExpr); ok {
+		if sel.Sel.Name == "Associations" {
+			if ident, ok := sel.X.(*ast.Ident); ok && ident.Name == "clause" {
+				return "clause.Associations", true
+			}
+		}
+	}
+
 	// Try constant evaluation (handles both literals and const refs)
 	tv, ok := info.Types[expr]
 	if ok && tv.Value != nil && tv.Value.Kind() == constant.String {

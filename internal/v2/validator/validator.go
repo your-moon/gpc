@@ -46,8 +46,17 @@ func Validate(chains []collector.Chain) []models.PreloadResult {
 				continue
 			}
 
-			if preload.Relation == "" {
-				result.Status = "skipped"
+			// clause.Associations is always valid in GORM
+			if preload.Relation == "clause.Associations" {
+				result.Relation = "clause.Associations"
+				result.Status = "correct"
+				results = append(results, result)
+				continue
+			}
+
+			// Empty relation is always an error
+			if preload.Relation == "" && !preload.Dynamic {
+				result.Status = "error"
 				results = append(results, result)
 				continue
 			}

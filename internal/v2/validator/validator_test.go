@@ -272,3 +272,63 @@ func GetOrders(db *gorm.DB) {
 		t.Errorf("expected 'correct' for embedded field, got '%s'", results[0].Status)
 	}
 }
+
+func TestValidate_ClauseAssociations(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+type User struct {
+	ID int64
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload(clause.Associations).Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct' for clause.Associations, got '%s'", results[0].Status)
+	}
+}
+
+func TestValidate_EmptyRelation(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type Order struct {
+	ID int64
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "error" {
+		t.Errorf("expected 'error' for empty relation, got '%s'", results[0].Status)
+	}
+}
