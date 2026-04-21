@@ -47,7 +47,7 @@ func GetOrders(db *gorm.DB) {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 }
@@ -121,7 +121,7 @@ func GetOrders(db *gorm.DB) {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 }
@@ -232,7 +232,7 @@ type Order struct {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 }
@@ -268,7 +268,7 @@ func GetOrders(db *gorm.DB) {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct' for embedded field, got '%s'", results[0].Status)
 	}
 }
@@ -302,7 +302,7 @@ func GetOrders(db *gorm.DB) {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct' for clause.Associations, got '%s'", results[0].Status)
 	}
 }

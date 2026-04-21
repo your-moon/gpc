@@ -8,196 +8,86 @@ import (
 )
 
 func TestWriteStructuredOutput(t *testing.T) {
-	tests := []struct {
-		name    string
-		results []models.PreloadResult
-	}{
-		{
-			name: "Basic results",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "Order",
-					Variable: "orders",
-					FindLine: 10,
-					Status:   "correct",
-				},
-				{
-					File:     "test.go",
-					Line:     15,
-					Relation: "Profile",
-					Model:    "Unknown",
-					Status:   "unknown",
-				},
-			},
-		},
-		{
-			name:    "Empty results",
-			results: []models.PreloadResult{},
-		},
-		{
-			name: "Mixed status results",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "Order",
-					Variable: "orders",
-					FindLine: 10,
-					Status:   "correct",
-				},
-				{
-					File:     "test.go",
-					Line:     15,
-					Relation: "Profile",
-					Model:    "Unknown",
-					Status:   "unknown",
-				},
-				{
-					File:     "test.go",
-					Line:     20,
-					Relation: "Invalid",
-					Model:    "Error",
-					Status:   "error",
-				},
-			},
-		},
+	results := []models.PreloadResult{
+		{File: "test.go", Line: 10, Relation: "User", Model: "Order", Status: "valid"},
+		{File: "test.go", Line: 15, Relation: "Invalid", Model: "Order", Status: "error"},
+		{File: "test.go", Line: 20, Relation: "(dynamic)", Model: "Order", Status: "skipped"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Test JSON output
-			testFile := "test_output_" + tt.name + ".json"
-			err := WriteStructuredOutput(tt.results, testFile, false, false)
-			if err != nil {
-				t.Fatalf("Failed to write structured output: %v", err)
-			}
-			defer os.Remove(testFile)
+	testFile := "test_output.json"
+	err := WriteStructuredOutput(results, testFile, false, false)
+	if err != nil {
+		t.Fatalf("WriteStructuredOutput: %v", err)
+	}
+	defer os.Remove(testFile)
 
-			// Verify file was created
-			if _, err := os.Stat(testFile); os.IsNotExist(err) {
-				t.Errorf("Output file was not created")
-			}
+	content, err := os.ReadFile(testFile)
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
 
-			// Read and verify content
-			content, err := os.ReadFile(testFile)
-			if err != nil {
-				t.Fatalf("Failed to read output file: %v", err)
-			}
-
-			// Basic content verification
-			contentStr := string(content)
-			requiredFields := []string{"total_preloads", "correct", "unknown", "accuracy", "results"}
-			for _, field := range requiredFields {
-				if !contains(contentStr, field) {
-					t.Errorf("Output missing %s field", field)
-				}
-			}
-		})
+	for _, field := range []string{"total", "valid", "errors", "skipped", "results"} {
+		if !contains(string(content), field) {
+			t.Errorf("output missing field %q", field)
+		}
 	}
 }
 
-func TestWriteConsoleOutput(t *testing.T) {
-	tests := []struct {
-		name    string
-		results []models.PreloadResult
-	}{
-		{
-			name: "Basic results",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "Order",
-					Variable: "orders",
-					FindLine: 10,
-					Status:   "correct",
-				},
-				{
-					File:     "test.go",
-					Line:     15,
-					Relation: "Profile",
-					Model:    "Unknown",
-					Status:   "unknown",
-				},
-			},
-		},
-		{
-			name:    "Empty results",
-			results: []models.PreloadResult{},
-		},
+func TestWriteStructuredOutput_Empty(t *testing.T) {
+	testFile := "test_empty.json"
+	err := WriteStructuredOutput(nil, testFile, false, false)
+	if err != nil {
+		t.Fatalf("WriteStructuredOutput: %v", err)
+	}
+	defer os.Remove(testFile)
+}
+
+func TestWriteStructuredOutput_ErrorsOnly(t *testing.T) {
+	results := []models.PreloadResult{
+		{File: "test.go", Line: 10, Relation: "User", Model: "Order", Status: "valid"},
+		{File: "test.go", Line: 15, Relation: "Bad", Model: "Order", Status: "error"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Test console output (we can't easily test the actual output, but we can test that it doesn't panic)
-			defer func() {
-				if r := recover(); r != nil {
-					t.Errorf("Console output panicked: %v", r)
-				}
-			}()
+	testFile := "test_errors_only.json"
+	err := WriteStructuredOutput(results, testFile, false, true)
+	if err != nil {
+		t.Fatalf("WriteStructuredOutput: %v", err)
+	}
+	defer os.Remove(testFile)
 
-			WriteConsoleOutput(tt.results, false, false)
-		})
+	content, err := os.ReadFile(testFile)
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
+	if contains(string(content), `"status": "valid"`) {
+		t.Error("errors-only output should not contain valid results")
 	}
 }
 
-func TestGetStatusEmoji(t *testing.T) {
-	tests := []struct {
-		name     string
-		status   string
-		expected string
-	}{
-		{
-			name:     "Correct status",
-			status:   "correct",
-			expected: "✅",
-		},
-		{
-			name:     "Unknown status",
-			status:   "unknown",
-			expected: "❓",
-		},
-		{
-			name:     "Error status",
-			status:   "error",
-			expected: "❌",
-		},
-		{
-			name:     "Invalid status",
-			status:   "invalid",
-			expected: "❓",
-		},
-		{
-			name:     "Empty status",
-			status:   "",
-			expected: "❓",
-		},
+func TestFilterResults(t *testing.T) {
+	results := []models.PreloadResult{
+		{Status: "valid"},
+		{Status: "error"},
+		{Status: "skipped"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := getStatusEmoji(tt.status)
-			if result != tt.expected {
-				t.Errorf("For status '%s', expected '%s', got '%s'", tt.status, tt.expected, result)
-			}
-		})
+	errOnly := filterResults(results, false, true)
+	if len(errOnly) != 1 || errOnly[0].Status != "error" {
+		t.Errorf("errors-only: expected 1 error, got %d", len(errOnly))
+	}
+
+	validOnly := filterResults(results, true, false)
+	if len(validOnly) != 2 {
+		t.Errorf("validation-only: expected 2 (valid+error), got %d", len(validOnly))
+	}
+
+	all := filterResults(results, false, false)
+	if len(all) != 3 {
+		t.Errorf("unfiltered: expected 3, got %d", len(all))
 	}
 }
 
-// Helper function to check if string contains substring
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 ||
-		(len(s) > len(substr) && (s[:len(substr)] == substr ||
-			s[len(s)-len(substr):] == substr ||
-			containsSubstring(s, substr))))
-}
-
-func containsSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
 			return true

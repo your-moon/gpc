@@ -58,8 +58,8 @@ func GetOrders(db *gorm.DB) {
 		counts[r.Status]++
 	}
 
-	if counts["correct"] != 3 {
-		t.Errorf("expected 3 correct, got %d", counts["correct"])
+	if counts["valid"] != 3 {
+		t.Errorf("expected 3 correct, got %d", counts["valid"])
 	}
 	if counts["error"] != 2 {
 		t.Errorf("expected 2 errors, got %d", counts["error"])
@@ -107,7 +107,7 @@ type Order struct {
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected first result 'correct', got '%s'", results[0].Status)
 	}
 	if results[1].Status != "error" {
@@ -147,7 +147,7 @@ func GetOrders(db *gorm.DB) {
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-	if results[0].Status != "correct" {
+	if results[0].Status != "valid" {
 		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 	if results[0].Relation != "User" {
