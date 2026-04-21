@@ -3,7 +3,7 @@ package resolver
 import (
 	"go/types"
 
-	"github.com/your-moon/gpc/internal/v2/collector"
+	"github.com/your-moon/gpc/internal/collector"
 )
 
 // Model holds the resolved model type information.

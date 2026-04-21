@@ -3,9 +3,9 @@ package resolver
 import (
 	"testing"
 
-	"github.com/your-moon/gpc/internal/v2/collector"
-	"github.com/your-moon/gpc/internal/v2/loader"
-	"github.com/your-moon/gpc/internal/v2/testutil"
+	"github.com/your-moon/gpc/internal/collector"
+	"github.com/your-moon/gpc/internal/loader"
+	"github.com/your-moon/gpc/internal/testutil"
 )
 
 func TestResolve_BasicModel(t *testing.T) {

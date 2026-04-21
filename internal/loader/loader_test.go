@@ -3,7 +3,7 @@ package loader
 import (
 	"testing"
 
-	"github.com/your-moon/gpc/internal/v2/testutil"
+	"github.com/your-moon/gpc/internal/testutil"
 )
 
 func TestLoad(t *testing.T) {

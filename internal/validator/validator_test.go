@@ -3,313 +3,332 @@ package validator
 import (
 	"testing"
 
-	"github.com/your-moon/gpc/internal/models"
-	"github.com/your-moon/gpc/internal/testutils"
+	"github.com/your-moon/gpc/internal/collector"
+	"github.com/your-moon/gpc/internal/loader"
+	"github.com/your-moon/gpc/internal/testutil"
 )
 
-func TestValidatePreloadRelations(t *testing.T) {
-	tests := []struct {
-		name       string
-		results    []models.PreloadResult
-		allStructs map[string]models.StructInfo
-		expected   []testutils.ExpectedAnalysisResult
-	}{
-		{
-			name: "Valid relations",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "Order",
-					Status:   "correct",
-				},
-				{
-					File:     "test.go",
-					Line:     15,
-					Relation: "Profile",
-					Model:    "User",
-					Status:   "correct",
-				},
-			},
-			allStructs: map[string]models.StructInfo{
-				"Order": {
-					Name: "Order",
-					Fields: map[string]string{
-						"ID":     "int64",
-						"UserID": "int64",
-						"User":   "User",
-					},
-				},
-				"User": {
-					Name: "User",
-					Fields: map[string]string{
-						"ID":      "int64",
-						"Name":    "string",
-						"Profile": "Profile",
-					},
-				},
-			},
-			expected: []testutils.ExpectedAnalysisResult{
-				{Relation: "User", Model: "Order", Status: "correct"},
-				{Relation: "Profile", Model: "User", Status: "correct"},
-			},
-		},
-		{
-			name: "Invalid relations",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "InvalidField",
-					Model:    "Order",
-					Status:   "correct",
-				},
-				{
-					File:     "test.go",
-					Line:     15,
-					Relation: "NonExistent",
-					Model:    "User",
-					Status:   "correct",
-				},
-			},
-			allStructs: map[string]models.StructInfo{
-				"Order": {
-					Name: "Order",
-					Fields: map[string]string{
-						"ID":     "int64",
-						"UserID": "int64",
-						"User":   "User",
-					},
-				},
-				"User": {
-					Name: "User",
-					Fields: map[string]string{
-						"ID":   "int64",
-						"Name": "string",
-					},
-				},
-			},
-			expected: []testutils.ExpectedAnalysisResult{
-				{Relation: "InvalidField", Model: "Order", Status: "error"},
-				{Relation: "NonExistent", Model: "User", Status: "error"},
-			},
-		},
-		{
-			name: "Unknown models",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "UnknownModel",
-					Status:   "correct",
-				},
-			},
-			allStructs: map[string]models.StructInfo{
-				"Order": {
-					Name: "Order",
-					Fields: map[string]string{
-						"ID":     "int64",
-						"UserID": "int64",
-						"User":   "User",
-					},
-				},
-			},
-			expected: []testutils.ExpectedAnalysisResult{
-				{Relation: "User", Model: "UnknownModel", Status: "unknown"},
-			},
-		},
-		{
-			name: "Package-qualified models",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User",
-					Model:    "databases.Order",
-					Status:   "correct",
-				},
-			},
-			allStructs: map[string]models.StructInfo{
-				"Order": {
-					Name: "Order",
-					Fields: map[string]string{
-						"ID":     "int64",
-						"UserID": "int64",
-						"User":   "User",
-					},
-				},
-			},
-			expected: []testutils.ExpectedAnalysisResult{
-				{Relation: "User", Model: "databases.Order", Status: "correct"},
-			},
-		},
-		{
-			name: "Nested relations",
-			results: []models.PreloadResult{
-				{
-					File:     "test.go",
-					Line:     10,
-					Relation: "User.Profile",
-					Model:    "Order",
-					Status:   "correct",
-				},
-			},
-			allStructs: map[string]models.StructInfo{
-				"Order": {
-					Name: "Order",
-					Fields: map[string]string{
-						"ID":     "int64",
-						"UserID": "int64",
-						"User":   "User",
-					},
-				},
-			},
-			expected: []testutils.ExpectedAnalysisResult{
-				{Relation: "User.Profile", Model: "Order", Status: "correct"},
-			},
-		},
+func loadAndCollect(t *testing.T, files map[string]string) ([]collector.Chain, *loader.Result) {
+	t.Helper()
+	dir := testutil.CreateTestModule(t, files)
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
 	}
+	chains := collector.Collect(result)
+	return chains, result
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Test validation
-			validatedResults := ValidatePreloadRelations(tt.results, tt.allStructs)
+func TestValidate_SimpleValid(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
 
-			// Verify results
-			testutils.AssertAnalysisResults(t, validatedResults, tt.expected)
-		})
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type Order struct {
+	ID     int64
+	UserID int64
+	User   User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("User").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 }
 
-func TestExtractBaseModelName(t *testing.T) {
-	tests := []struct {
-		name      string
-		modelName string
-		expected  string
-	}{
-		{
-			name:      "Simple model name",
-			modelName: "User",
-			expected:  "User",
-		},
-		{
-			name:      "Package-qualified model",
-			modelName: "databases.User",
-			expected:  "User",
-		},
-		{
-			name:      "Nested package model",
-			modelName: "models.database.User",
-			expected:  "User",
-		},
-		{
-			name:      "Empty string",
-			modelName: "",
-			expected:  "",
-		},
-	}
+func TestValidate_SimpleInvalid(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := extractBaseModelName(tt.modelName)
-			if result != tt.expected {
-				t.Errorf("For model '%s', expected '%s', got '%s'", tt.modelName, tt.expected, result)
-			}
-		})
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type Order struct {
+	ID     int64
+	UserID int64
+	User   User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("Customer").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "error" {
+		t.Errorf("expected 'error', got '%s'", results[0].Status)
 	}
 }
 
-func TestValidateRelationInStruct(t *testing.T) {
-	structInfo := models.StructInfo{
-		Name: "Order",
-		Fields: map[string]string{
-			"ID":     "int64",
-			"UserID": "int64",
-			"User":   "User",
-			"Items":  "[]Item",
-		},
-	}
+func TestValidate_NestedValid(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
 
-	tests := []struct {
-		name     string
-		relation string
-		expected bool
-	}{
-		{
-			name:     "Valid simple relation",
-			relation: "User",
-			expected: true,
-		},
-		{
-			name:     "Valid array relation",
-			relation: "Items",
-			expected: true,
-		},
-		{
-			name:     "Invalid relation",
-			relation: "NonExistent",
-			expected: false,
-		},
-		{
-			name:     "Nested relation (first part valid)",
-			relation: "User.Profile",
-			expected: true,
-		},
-		{
-			name:     "Nested relation (first part invalid)",
-			relation: "NonExistent.Profile",
-			expected: false,
-		},
-	}
+import "gorm.io/gorm"
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := validateRelationInStruct(tt.relation, structInfo)
-			if result != tt.expected {
-				t.Errorf("For relation '%s', expected %v, got %v", tt.relation, tt.expected, result)
-			}
-		})
+type Address struct {
+	City string
+}
+
+type Profile struct {
+	Bio     string
+	Address Address
+}
+
+type User struct {
+	ID      int64
+	Profile Profile
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("User.Profile.Address").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct', got '%s'", results[0].Status)
 	}
 }
 
-func TestGetStructStatistics(t *testing.T) {
-	allStructs := map[string]models.StructInfo{
-		"User": {
-			Name: "User",
-			Fields: map[string]string{
-				"ID":   "int64",
-				"Name": "string",
-			},
-		},
-		"Order": {
-			Name: "Order",
-			Fields: map[string]string{
-				"ID":     "int64",
-				"UserID": "int64",
-				"User":   "User",
-			},
-		},
+func TestValidate_NestedInvalid_DeepTypo(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type Address struct {
+	City string
+}
+
+type Profile struct {
+	Bio     string
+	Address Address
+}
+
+type User struct {
+	ID      int64
+	Profile Profile
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("User.Profil.Address").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
 	}
-
-	stats := GetStructStatistics(allStructs)
-
-	expectedStats := map[string]interface{}{
-		"total_structs":         2,
-		"total_fields":          5,
-		"avg_fields_per_struct": 2.5,
+	if results[0].Status != "error" {
+		t.Errorf("expected 'error', got '%s'", results[0].Status)
 	}
+	if results[0].Relation != "User.Profil.Address" {
+		t.Errorf("expected relation 'User.Profil.Address', got '%s'", results[0].Relation)
+	}
+}
 
-	for key, expectedValue := range expectedStats {
-		actualValue, exists := stats[key]
-		if !exists {
-			t.Errorf("Missing statistic: %s", key)
-			continue
-		}
+func TestValidate_DynamicSkipped(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
 
-		if actualValue != expectedValue {
-			t.Errorf("For statistic %s, expected %v, got %v", key, expectedValue, actualValue)
-		}
+import "gorm.io/gorm"
+
+type User struct {
+	ID int64
+}
+
+func GetData(db *gorm.DB, field string) {
+	var users []User
+	db.Preload(field).Find(&users)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "skipped" {
+		t.Errorf("expected 'skipped' for dynamic arg, got '%s'", results[0].Status)
+	}
+}
+
+func TestValidate_CrossPackageNested(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import (
+	"gorm.io/gorm"
+	"testmod/models"
+)
+
+func GetOrders(db *gorm.DB) {
+	var orders []models.Order
+	db.Preload("User.Profile").Find(&orders)
+}
+`,
+		"models/models.go": `package models
+
+type Profile struct {
+	Bio string
+}
+
+type User struct {
+	ID      int64
+	Profile Profile
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct', got '%s'", results[0].Status)
+	}
+}
+
+func TestValidate_EmbeddedStruct(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type BaseModel struct {
+	Creator User
+}
+
+type Order struct {
+	BaseModel
+	ID int64
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("Creator").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct' for embedded field, got '%s'", results[0].Status)
+	}
+}
+
+func TestValidate_ClauseAssociations(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+type User struct {
+	ID int64
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload(clause.Associations).Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "correct" {
+		t.Errorf("expected 'correct' for clause.Associations, got '%s'", results[0].Status)
+	}
+}
+
+func TestValidate_EmptyRelation(t *testing.T) {
+	chains, _ := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type Order struct {
+	ID int64
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("").Find(&orders)
+}
+`,
+	})
+
+	results := Validate(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	if results[0].Status != "error" {
+		t.Errorf("expected 'error' for empty relation, got '%s'", results[0].Status)
 	}
 }

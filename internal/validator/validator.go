@@ -1,129 +1,112 @@
 package validator
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/your-moon/gpc/internal/debug"
 	"github.com/your-moon/gpc/internal/models"
+	"github.com/your-moon/gpc/internal/collector"
+	"github.com/your-moon/gpc/internal/resolver"
 )
 
-// ValidatePreloadRelations validates preload relations against actual struct definitions
-func ValidatePreloadRelations(results []models.PreloadResult, allStructs map[string]models.StructInfo) []models.PreloadResult {
-	debug.PassHeader("STRUCT VALIDATION")
-	debug.Info("Validating %d preload results against %d struct definitions",
-		len(results), len(allStructs))
+// Validate checks all preload chains and returns results.
+func Validate(chains []collector.Chain) []models.PreloadResult {
+	var results []models.PreloadResult
 
-	// Create a map of struct names for quick lookup
-	structMap := make(map[string]models.StructInfo)
-	for name, info := range allStructs {
-		structMap[name] = info
-		debug.Verbose("Found struct: %s with %d fields", name, len(info.Fields))
-	}
+	for _, chain := range chains {
+		model := resolver.Resolve(chain)
+		file := chain.File
+		pkg := chain.Pkg
 
-	// Validate each preload result
-	for i, result := range results {
-		debug.Section(fmt.Sprintf("Validating Preload %d", i+1))
-		debug.Info("Preload: %s -> %s (model: %s)", result.Relation, result.Model, result.Model)
+		for _, preload := range chain.Preloads {
+			line := 0
+			if pkg != nil {
+				line = pkg.Fset.Position(preload.Pos).Line
+			}
 
-		// Extract the base model name (remove package prefix if present)
-		baseModel := extractBaseModelName(result.Model)
-		debug.Indent(1, "Base model: %s", baseModel)
-
-		// Try to find the struct with package prefix first
-		// e.g., "databases.Invoice" -> look for "databases.Invoice" in structMap
-		fullModelName := result.Model
-
-		// Check if the model struct exists
-		// First try with full package name (e.g., "databases.Invoice")
-		var structInfo models.StructInfo
-		var exists bool
-
-		if structInfo, exists = structMap[fullModelName]; exists {
-			debug.Indent(1, "Model struct found: %s (with package)", fullModelName)
-		} else if structInfo, exists = structMap[baseModel]; exists {
-			debug.Indent(1, "Model struct found: %s (base name)", baseModel)
-		} else {
-			debug.Indent(1, "❌ Model struct '%s' not found", baseModel)
-			results[i].Status = "unknown"
-			continue
-		}
-
-		if exists {
-			// Special handling for clause.Associations - this is always valid in GORM
-			if result.Relation == "clause.Associations" {
-				debug.Indent(2, "✅ clause.Associations is a special GORM constant - always valid")
-				results[i].Status = "correct"
-			} else {
-				// Check if the relation field exists in the struct
-				if validateRelationInStruct(result.Relation, structInfo) {
-					debug.Indent(2, "✅ Relation '%s' found in struct %s", result.Relation, baseModel)
-					results[i].Status = "correct"
+			modelName := "Unknown"
+			if model != nil {
+				if model.Pkg != nil {
+					modelName = model.Pkg.Name() + "." + model.Name
 				} else {
-					debug.Indent(2, "❌ Relation '%s' NOT found in struct %s", result.Relation, baseModel)
-					results[i].Status = "error"
+					modelName = model.Name
 				}
 			}
+
+			result := models.PreloadResult{
+				File:     file,
+				Line:     line,
+				Relation: preload.Relation,
+				Model:    modelName,
+			}
+
+			if preload.Dynamic {
+				result.Status = "skipped"
+				result.Relation = "(dynamic)"
+				results = append(results, result)
+				continue
+			}
+
+			// clause.Associations is always valid in GORM
+			if preload.Relation == "clause.Associations" {
+				result.Relation = "clause.Associations"
+				result.Status = "correct"
+				results = append(results, result)
+				continue
+			}
+
+			// Empty relation is always an error
+			if preload.Relation == "" && !preload.Dynamic {
+				result.Status = "error"
+				results = append(results, result)
+				continue
+			}
+
+			if model == nil {
+				result.Status = "unknown"
+				results = append(results, result)
+				continue
+			}
+
+			// Validate the relation path recursively
+			if validatePath(preload.Relation, model) {
+				result.Status = "correct"
+			} else {
+				result.Status = "error"
+			}
+
+			results = append(results, result)
 		}
 	}
 
-	debug.PassFooter("STRUCT VALIDATION", len(results))
 	return results
 }
 
-// extractBaseModelName extracts the base model name from a potentially package-qualified name
-func extractBaseModelName(modelName string) string {
-	// Remove package prefix if present (e.g., "databases.Invoice" -> "Invoice")
-	if lastDot := strings.LastIndex(modelName, "."); lastDot != -1 {
-		return modelName[lastDot+1:]
-	}
-	return modelName
-}
+// validatePath recursively validates a dotted relation path against a model's struct type.
+func validatePath(relation string, model *resolver.Model) bool {
+	parts := strings.SplitN(relation, ".", 2)
+	fieldName := parts[0]
 
-// validateRelationInStruct checks if a relation exists in a struct
-func validateRelationInStruct(relation string, structInfo models.StructInfo) bool {
-	// Handle nested relations (e.g., "User.Profile")
-	parts := strings.Split(relation, ".")
-	if len(parts) == 1 {
-		// Simple relation - check if field exists
-		_, exists := structInfo.Fields[parts[0]]
-		return exists
-	}
-
-	// Nested relation - check if the first part exists and is a struct type
-	firstField, exists := structInfo.Fields[parts[0]]
-	if !exists {
+	fi := resolver.LookupField(model.StructType, fieldName)
+	if fi == nil {
 		return false
 	}
 
-	// For nested relations, we would need to recursively check the nested struct
-	// For now, we'll assume the first part exists and is valid
-	// TODO: Implement recursive struct validation for nested relations
-	debug.Indent(3, "Nested relation '%s' - first part '%s' found with type '%s'",
-		relation, parts[0], firstField)
+	// If there are more segments, recurse into the field's type
+	if len(parts) == 2 {
+		if fi.StructType == nil {
+			return false
+		}
+		nextModel := &resolver.Model{
+			Name:       fi.Name,
+			StructType: fi.StructType,
+			Named:      fi.Named,
+		}
+		if fi.Named != nil && fi.Named.Obj() != nil {
+			nextModel.Pkg = fi.Named.Obj().Pkg()
+			nextModel.Name = fi.Named.Obj().Name()
+		}
+		return validatePath(parts[1], nextModel)
+	}
 
 	return true
-}
-
-// GetStructStatistics returns statistics about the structs found
-func GetStructStatistics(allStructs map[string]models.StructInfo) map[string]interface{} {
-	stats := make(map[string]interface{})
-
-	totalStructs := len(allStructs)
-	totalFields := 0
-
-	for _, structInfo := range allStructs {
-		totalFields += len(structInfo.Fields)
-	}
-
-	stats["total_structs"] = totalStructs
-	stats["total_fields"] = totalFields
-
-	if totalStructs > 0 {
-		stats["avg_fields_per_struct"] = float64(totalFields) / float64(totalStructs)
-	} else {
-		stats["avg_fields_per_struct"] = 0.0
-	}
-
-	return stats
 }
