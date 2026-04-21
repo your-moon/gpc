@@ -3,17 +3,17 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/your-moon/gpc/internal/debug"
-	"github.com/your-moon/gpc/internal/service"
+	"github.com/your-moon/gpc/internal/models"
+	"github.com/your-moon/gpc/internal/output"
+	"github.com/your-moon/gpc/internal/v2/engine"
 )
 
 var (
 	outputFormat   string
 	outputFile     string
-	debugMode      bool
-	verboseMode    bool
 	validationOnly bool
 	errorsOnly     bool
 )
@@ -37,8 +37,6 @@ When you specify a directory, it will:
 func init() {
 	rootCmd.Flags().StringVarP(&outputFormat, "output", "o", "console", "Output format: console (default) or json")
 	rootCmd.Flags().StringVarP(&outputFile, "file", "f", "gpc_results.json", "Output file for json format")
-	rootCmd.Flags().BoolVarP(&debugMode, "debug", "d", false, "Enable debug output")
-	rootCmd.Flags().BoolVarP(&verboseMode, "verbose", "v", false, "Enable verbose output")
 	rootCmd.Flags().BoolVarP(&validationOnly, "validation-only", "V", false, "Show only validation results (errors and correct relations)")
 	rootCmd.Flags().BoolVarP(&errorsOnly, "errors-only", "e", false, "Show only error results")
 }
@@ -53,16 +51,53 @@ func main() {
 func runChecker(cmd *cobra.Command, args []string) {
 	target := args[0]
 
-	// Set debug modes
-	debug.SetDebugMode(debugMode)
-	debug.SetVerboseMode(verboseMode)
-
-	// Create service instance
-	svc := service.NewService(outputFormat, outputFile, validationOnly, errorsOnly)
-
-	// Run analysis
-	if err := svc.AnalyzeTarget(target); err != nil {
+	info, err := os.Stat(target)
+	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
+	}
+
+	var dir string
+	var filterFile string
+	if info.IsDir() {
+		dir = target
+	} else {
+		dir = filepath.Dir(target)
+		absPath, _ := filepath.Abs(target)
+		filterFile = absPath
+	}
+
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	results, err := engine.Analyze(absDir)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Filter to target file if specified
+	if filterFile != "" {
+		var filtered []models.PreloadResult
+		for _, r := range results {
+			if r.File == filterFile {
+				filtered = append(filtered, r)
+			}
+		}
+		results = filtered
+	}
+
+	if outputFormat == "json" {
+		err = output.WriteStructuredOutput(results, outputFile, validationOnly, errorsOnly)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Analysis complete! Results written to %s\n", outputFile)
+	} else {
+		output.WriteConsoleOutput(results, validationOnly, errorsOnly)
 	}
 }
