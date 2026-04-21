@@ -328,3 +328,134 @@ func GetOrders(db *gorm.DB) {
 		t.Errorf("expected 'User', got '%s'", chains[0].Preloads[0].Relation)
 	}
 }
+
+func TestCollect_EmbeddedGormDB(t *testing.T) {
+	dir := testutil.CreateTestModule(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type QueryBuilder struct {
+	*gorm.DB
+}
+
+type User struct {
+	ID   int64
+	Name string
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	orm := &QueryBuilder{DB: db.Preload("User")}
+	var orders []Order
+	orm.Find(&orders)
+}
+`,
+	})
+
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	chains := Collect(result)
+	if len(chains) != 1 {
+		t.Fatalf("expected 1 chain, got %d", len(chains))
+	}
+	if len(chains[0].Preloads) != 1 {
+		t.Fatalf("expected 1 preload, got %d", len(chains[0].Preloads))
+	}
+	if chains[0].Preloads[0].Relation != "User" {
+		t.Errorf("expected 'User', got '%s'", chains[0].Preloads[0].Relation)
+	}
+}
+
+func TestCollect_EmbeddedGormDB_MultiplePreloads(t *testing.T) {
+	dir := testutil.CreateTestModule(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type QueryBuilder struct {
+	*gorm.DB
+}
+
+type Profile struct {
+	Bio string
+}
+
+type User struct {
+	ID      int64
+	Profile Profile
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	orm := &QueryBuilder{
+		DB: db.Model(&Order{}).
+			Preload("User").
+			Preload("User.Profile"),
+	}
+	var orders []Order
+	orm.Find(&orders)
+}
+`,
+	})
+
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	chains := Collect(result)
+	if len(chains) != 1 {
+		t.Fatalf("expected 1 chain, got %d", len(chains))
+	}
+	if len(chains[0].Preloads) != 2 {
+		t.Fatalf("expected 2 preloads, got %d", len(chains[0].Preloads))
+	}
+}
+
+func TestCollect_EmbeddedGormDB_InlineChain(t *testing.T) {
+	dir := testutil.CreateTestModule(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type QueryBuilder struct {
+	*gorm.DB
+}
+
+type User struct {
+	ID int64
+}
+
+func GetUsers(db *gorm.DB) {
+	orm := &QueryBuilder{DB: db}
+	var users []User
+	orm.Preload("Name").Find(&users)
+}
+`,
+	})
+
+	result, err := loader.Load(dir)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	chains := Collect(result)
+	if len(chains) != 1 {
+		t.Fatalf("expected 1 chain, got %d", len(chains))
+	}
+	if chains[0].Preloads[0].Relation != "Name" {
+		t.Errorf("expected 'Name', got '%s'", chains[0].Preloads[0].Relation)
+	}
+}

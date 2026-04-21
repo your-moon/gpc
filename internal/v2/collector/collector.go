@@ -162,19 +162,18 @@ func resolveStringArg(expr ast.Expr, info *types.Info) (string, bool) {
 
 // collectPreloadsFromVariable resolves preloads when the receiver is a variable
 // e.g., query := db.Preload("User"); query.Find(&orders)
+// Also handles struct literals: orm := &QueryBuilder{DB: db.Preload("User")}
 func collectPreloadsFromVariable(expr ast.Expr, file *ast.File, pkg *packages.Package) []PreloadInfo {
 	ident, ok := expr.(*ast.Ident)
 	if !ok {
 		return nil
 	}
 
-	// Find the definition of this variable
 	obj := pkg.TypesInfo.ObjectOf(ident)
 	if obj == nil {
 		return nil
 	}
 
-	// Walk the file to find the assignment
 	var preloads []PreloadInfo
 	ast.Inspect(file, func(n ast.Node) bool {
 		assign, ok := n.(*ast.AssignStmt)
@@ -186,20 +185,51 @@ func collectPreloadsFromVariable(expr ast.Expr, file *ast.File, pkg *packages.Pa
 			if !ok {
 				continue
 			}
-			lhsObj := pkg.TypesInfo.ObjectOf(lhsIdent)
-			if lhsObj != obj {
+			if pkg.TypesInfo.ObjectOf(lhsIdent) != obj {
 				continue
 			}
-			if i < len(assign.Rhs) {
-				// Found the assignment, collect preloads from the RHS
-				if call, ok := assign.Rhs[i].(*ast.CallExpr); ok {
-					preloads = collectPreloadsFromCall(call, pkg)
+			if i >= len(assign.Rhs) {
+				continue
+			}
+			rhs := assign.Rhs[i]
+			// Direct call chain: query := db.Preload("User")
+			if call, ok := rhs.(*ast.CallExpr); ok {
+				preloads = append(preloads, collectPreloadsFromCall(call, pkg)...)
+			}
+			// Struct literal with &: orm := &QueryBuilder{DB: db.Preload("X")}
+			if unary, ok := rhs.(*ast.UnaryExpr); ok {
+				if comp, ok := unary.X.(*ast.CompositeLit); ok {
+					preloads = append(preloads, collectPreloadsFromCompositeLit(comp, pkg)...)
 				}
+			}
+			// Struct literal without &: orm := QueryBuilder{DB: db.Preload("X")}
+			if comp, ok := rhs.(*ast.CompositeLit); ok {
+				preloads = append(preloads, collectPreloadsFromCompositeLit(comp, pkg)...)
 			}
 		}
 		return true
 	})
 
+	return preloads
+}
+
+// collectPreloadsFromCompositeLit extracts preloads from struct literal fields
+// that are *gorm.DB typed (including embedded fields).
+func collectPreloadsFromCompositeLit(comp *ast.CompositeLit, pkg *packages.Package) []PreloadInfo {
+	var preloads []PreloadInfo
+	for _, elt := range comp.Elts {
+		kv, ok := elt.(*ast.KeyValueExpr)
+		if !ok {
+			continue
+		}
+		// Check if this field's value has type *gorm.DB
+		valType := pkg.TypesInfo.TypeOf(kv.Value)
+		if valType != nil && isGormDBType(valType) {
+			if call, ok := kv.Value.(*ast.CallExpr); ok {
+				preloads = append(preloads, collectPreloadsFromCall(call, pkg)...)
+			}
+		}
+	}
 	return preloads
 }
 
@@ -232,13 +262,16 @@ func collectPreloadsFromCall(call *ast.CallExpr, pkg *packages.Package) []Preloa
 	return preloads
 }
 
-// isGormDBExpr checks if an expression has type *gorm.DB.
+// isGormDBExpr checks if an expression has type *gorm.DB or a struct embedding *gorm.DB.
 func isGormDBExpr(expr ast.Expr, info *types.Info) bool {
 	typ := info.TypeOf(expr)
 	if typ == nil {
 		return false
 	}
-	// Unwrap pointer
+	return isGormDBType(typ)
+}
+
+func isGormDBType(typ types.Type) bool {
 	if ptr, ok := typ.(*types.Pointer); ok {
 		typ = ptr.Elem()
 	}
@@ -247,5 +280,22 @@ func isGormDBExpr(expr ast.Expr, info *types.Info) bool {
 		return false
 	}
 	obj := named.Obj()
-	return obj.Name() == "DB" && obj.Pkg() != nil && obj.Pkg().Path() == gormPkgPath
+	if obj.Name() == "DB" && obj.Pkg() != nil && obj.Pkg().Path() == gormPkgPath {
+		return true
+	}
+	// Check if the struct embeds *gorm.DB
+	st, ok := named.Underlying().(*types.Struct)
+	if !ok {
+		return false
+	}
+	for i := 0; i < st.NumFields(); i++ {
+		field := st.Field(i)
+		if !field.Embedded() {
+			continue
+		}
+		if isGormDBType(field.Type()) {
+			return true
+		}
+	}
+	return false
 }
