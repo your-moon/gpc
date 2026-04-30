@@ -1,26 +1,9 @@
-package validator
+package relations
 
-import (
-	"testing"
+import "testing"
 
-	"github.com/your-moon/gpc/internal/collector"
-	"github.com/your-moon/gpc/internal/loader"
-	"github.com/your-moon/gpc/internal/testutil"
-)
-
-func loadAndCollect(t *testing.T, files map[string]string) ([]collector.Chain, *loader.Result) {
-	t.Helper()
-	dir := testutil.CreateTestModule(t, files)
-	result, err := loader.Load(dir)
-	if err != nil {
-		t.Fatalf("Load: %v", err)
-	}
-	chains := collector.Collect(result)
-	return chains, result
-}
-
-func TestValidate_SimpleValid(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_SimpleValid(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -42,18 +25,17 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "valid" {
-		t.Errorf("expected 'correct', got '%s'", results[0].Status)
+		t.Errorf("expected 'valid', got '%s'", results[0].Status)
 	}
 }
 
-func TestValidate_SimpleInvalid(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_SimpleInvalid(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -75,8 +57,7 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
@@ -85,8 +66,8 @@ func GetOrders(db *gorm.DB) {
 	}
 }
 
-func TestValidate_NestedValid(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_NestedValid(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -116,18 +97,17 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "valid" {
-		t.Errorf("expected 'correct', got '%s'", results[0].Status)
+		t.Errorf("expected 'valid', got '%s'", results[0].Status)
 	}
 }
 
-func TestValidate_NestedInvalid_DeepTypo(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_NestedInvalid_DeepTypo(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -157,8 +137,7 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
@@ -170,8 +149,8 @@ func GetOrders(db *gorm.DB) {
 	}
 }
 
-func TestValidate_DynamicSkipped(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_DynamicSkipped(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -186,8 +165,7 @@ func GetData(db *gorm.DB, field string) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
@@ -196,8 +174,8 @@ func GetData(db *gorm.DB, field string) {
 	}
 }
 
-func TestValidate_CrossPackageNested(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_CrossPackageNested(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import (
@@ -227,18 +205,17 @@ type Order struct {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "valid" {
-		t.Errorf("expected 'correct', got '%s'", results[0].Status)
+		t.Errorf("expected 'valid', got '%s'", results[0].Status)
 	}
 }
 
-func TestValidate_EmbeddedStruct(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_EmbeddedStruct(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -263,18 +240,17 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "valid" {
-		t.Errorf("expected 'correct' for embedded field, got '%s'", results[0].Status)
+		t.Errorf("expected 'valid' for embedded field, got '%s'", results[0].Status)
 	}
 }
 
-func TestValidate_ClauseAssociations(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_ClauseAssociations(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import (
@@ -297,18 +273,17 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "valid" {
-		t.Errorf("expected 'correct' for clause.Associations, got '%s'", results[0].Status)
+		t.Errorf("expected 'valid' for clause.Associations, got '%s'", results[0].Status)
 	}
 }
 
-func TestValidate_EmptyRelation(t *testing.T) {
-	chains, _ := loadAndCollect(t, map[string]string{
+func TestVerify_EmptyRelation(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
 		"main.go": `package main
 
 import "gorm.io/gorm"
@@ -323,12 +298,44 @@ func GetOrders(db *gorm.DB) {
 }
 `,
 	})
-
-	results := Validate(chains)
+	results := Verify(chains)
 	if len(results) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(results))
 	}
 	if results[0].Status != "error" {
 		t.Errorf("expected 'error' for empty relation, got '%s'", results[0].Status)
+	}
+}
+
+func TestVerify_LineNumberPropagated(t *testing.T) {
+	chains := loadAndCollect(t, map[string]string{
+		"main.go": `package main
+
+import "gorm.io/gorm"
+
+type User struct {
+	ID int64
+}
+
+type Order struct {
+	ID   int64
+	User User
+}
+
+func GetOrders(db *gorm.DB) {
+	var orders []Order
+	db.Preload("User").Find(&orders)
+}
+`,
+	})
+	results := Verify(chains)
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+	// The Preload("User") call sits on line 16 of the fixture (after the
+	// opening newline + the leading `package main`). What we care about is
+	// that Line is non-zero — i.e. collector pre-resolved the position.
+	if results[0].Line == 0 {
+		t.Errorf("expected non-zero Line, got 0")
 	}
 }

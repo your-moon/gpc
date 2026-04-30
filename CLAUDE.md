@@ -4,18 +4,22 @@ Static analysis tool that validates GORM `Preload()` relation names at developme
 
 ## What It Does
 
-Scans Go source files for `db.Preload("...")` calls, verifies the receiver is `*gorm.DB` via type checking, resolves the model type from nearby `Find`/`First`/`FirstOrCreate` calls using `go/types`, then recursively validates relation paths against actual struct field definitions including embedded structs and cross-package types.
+Scans Go source files for `db.Preload("...")` calls, verifies the receiver is `*gorm.DB` via type checking, resolves the model type from nearby `Find`/`First`/`FirstOrCreate` calls using `go/types`, then recursively verifies relation paths against actual struct field definitions including embedded structs and cross-package types.
+
+Domain glossary (Chain, Relation Path, Model, Verification): see `CONTEXT.md`.
 
 ## Architecture
 
 ```
 main.go                          CLI entry (cobra), flags, delegates to engine
 internal/
-  engine/engine.go               Orchestrator: loader → collector → validator → results
+  engine/engine.go               Orchestrator: loader → collector → relations → results
   loader/loader.go               go/packages.Load wrapper, returns typed package info
-  collector/collector.go         Single AST walk: extracts Preload chains with type verification
-  resolver/resolver.go           Type-based model resolution from Find/First args
-  validator/validator.go         Recursive relation path validation via types.Struct
+  collector/collector.go         Single AST walk: extracts Preload chains, pre-resolves source lines
+  relations/                     Model resolution + relation-path verification
+    relations.go                 Verify entry point + result mapping
+    resolve.go                   Model extraction (pointer/slice/named unwrap), field lookup
+    walk.go                      Dotted relation-path traversal with diagnostic walkResult
   models/types.go                Shared data types (PreloadResult, AnalysisResult)
   output/output.go               Console and JSON output formatters
   testutil/testutil.go           Test helper: creates temp Go modules for go/packages
@@ -24,10 +28,9 @@ internal/
 ## Pipeline Flow
 
 1. **Package Loading** — `loader.Load`: `go/packages.Load` with full type info
-2. **Chain Collection** — `collector.Collect`: single AST walk finds `.Preload().Find()` chains, verifies `*gorm.DB` receiver, resolves constants
-3. **Model Resolution** — `resolver.Resolve`: unwraps `&variable` type (pointer/slice/named) to find concrete struct
-4. **Validation** — `validator.Validate`: recursively walks dotted relation paths against struct fields via `types.Struct`
-5. **Output** — console or JSON
+2. **Chain Collection** — `collector.Collect`: single AST walk finds `.Preload().Find()` chains, verifies `*gorm.DB` receiver, resolves constants, pre-resolves each Preload's source line (no `token.Pos` leaks downstream)
+3. **Verification** — `relations.Verify`: resolves each chain's model and walks every dotted relation path through `types.Struct`. Walk returns a `walkResult{ok, failedAt, parent}` so future diagnostics can name the failing segment and the type it was looked up in.
+4. **Output** — console or JSON
 
 ## Build & Test
 
