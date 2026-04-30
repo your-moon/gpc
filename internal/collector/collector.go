@@ -15,13 +15,13 @@ import (
 type PreloadInfo struct {
 	Relation string // resolved string value, empty if dynamic
 	Dynamic  bool   // true if argument is not a resolvable constant
-	Pos      token.Pos
+	Line     int    // 1-based source line of the .Preload call
 }
 
 // TerminalCall holds info about the terminal call (.Find, .First, etc.)
 type TerminalCall struct {
-	Method string    // "Find", "First", "FirstOrCreate", etc.
-	Arg    ast.Expr  // the &variable argument
+	Method string   // "Find", "First", "FirstOrCreate", etc.
+	Arg    ast.Expr // the &variable argument
 	Pos    token.Pos
 }
 
@@ -119,7 +119,7 @@ func collectPreloads(expr ast.Expr, pkg *packages.Package) []PreloadInfo {
 		}
 
 		if sel.Sel.Name == "Preload" && len(call.Args) > 0 {
-			pi := PreloadInfo{Pos: call.Pos()}
+			pi := PreloadInfo{Line: pkg.Fset.Position(call.Pos()).Line}
 			relation, ok := resolveStringArg(call.Args[0], pkg.TypesInfo)
 			if ok {
 				pi.Relation = relation
@@ -243,7 +243,7 @@ func collectPreloadsFromCall(call *ast.CallExpr, pkg *packages.Package) []Preloa
 	}
 
 	if sel.Sel.Name == "Preload" && len(call.Args) > 0 {
-		pi := PreloadInfo{Pos: call.Pos()}
+		pi := PreloadInfo{Line: pkg.Fset.Position(call.Pos()).Line}
 		relation, ok := resolveStringArg(call.Args[0], pkg.TypesInfo)
 		if ok {
 			pi.Relation = relation
