@@ -7,7 +7,7 @@ import (
 	"github.com/your-moon/gpc/internal/relations"
 )
 
-// Analyze runs the full v2 analysis pipeline on the given directory.
+// Analyze loads packages in dir, collects Preload chains, and verifies them.
 func Analyze(dir string) ([]models.PreloadResult, error) {
 	result, err := loader.Load(dir)
 	if err != nil {

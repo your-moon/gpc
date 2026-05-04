@@ -153,8 +153,7 @@ internal/
   engine/              Pipeline orchestrator
   loader/              go/packages.Load with full type info
   collector/           AST walk → Preload chain extraction
-  resolver/            Type-based model resolution from Find() args
-  validator/           Recursive relation path validation
+  relations/           Model resolution + relation path verification
   models/              Shared types
   output/              Text and JSON formatters
 ```

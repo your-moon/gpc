@@ -2,8 +2,6 @@ package examples
 
 import "gorm.io/gorm"
 
-// Examples showing common errors that the linter will catch
-
 type Company struct {
 	Name string
 }
@@ -18,23 +16,11 @@ type Employee struct {
 	Department Department
 }
 
-// CommonErrors demonstrates invalid Preload calls that will be caught
 func CommonErrors(db *gorm.DB) {
 	var employees []Employee
 
-	// ❌ Typo: "Departmen" instead of "Department"
-	// Error: invalid preload: Departmen not found in Employee
-	db.Preload("Departmen").Find(&employees)
-
-	// ❌ Typo in nested relation: "Compan" instead of "Company"
-	// Error: invalid preload: Department.Compan not found in Employee
-	db.Preload("Department.Compan").Find(&employees)
-
-	// ❌ Non-existent relation
-	// Error: invalid preload: Manager not found in Employee
-	db.Preload("Manager").Find(&employees)
-
-	// ❌ Wrong nested path
-	// Error: invalid preload: Company not found in Employee
-	db.Preload("Company").Find(&employees)
+	db.Preload("Departmen").Find(&employees)         // typo
+	db.Preload("Department.Compan").Find(&employees) // typo in nested path
+	db.Preload("Manager").Find(&employees)           // field doesn't exist
+	db.Preload("Company").Find(&employees)           // not a direct relation of Employee
 }
